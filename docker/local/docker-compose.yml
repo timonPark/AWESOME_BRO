@@ -1,0 +1,25 @@
+version: "1.0"
+
+services:
+  bss_db:
+    image: mysql:8
+    cap_add:
+      - SYS_NICE
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - type: bind
+        source: ./cnf/my.cnf
+        target: /etc/mysql/conf.d/my.cnf
+    restart: always
+    container_name: awesomebro_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dkfuekdu@#@d1
+      MYSQL_DATABASE: AWESOME_BRO_SCHEMA
+      MYSQL_USER: awesomebro_owner
+      MYSQL_PASSWORD: dkfuekduP1234
+    command: --default-time-zone=Asia/Seoul
+    ports:
+      - "23306:3306"
+    expose:
+      - "23306"
+
