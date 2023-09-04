@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${AWESOME_BRO_URL}
+    username: ${AWESOME_BRO_USERNAME}
+    password: ${AWESOME_BRO_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    open-in-view: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+      dialect: org.hibernate.dialect.MySQL8InnoDBDialect
+
+logging:
+  level:
+    org.hibernate.SQL: debug
