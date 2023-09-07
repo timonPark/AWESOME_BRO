@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
     // 사용자 생성
@@ -32,5 +32,9 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
+
+    // 로그인
+    @PostMapping("/login")
+    public
 
 }
