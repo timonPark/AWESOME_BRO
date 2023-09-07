@@ -14,11 +14,11 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional
     public Long createUser(User user){
-        return userRepository.save(user);
+        return userRepository.save(user).getId();
     }
 
     @Override
     public User findUser(Long id){
-        return userRepository.findOne(id);
+        return userRepository.findById(id).orElseThrow();
     }
 }
