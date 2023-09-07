@@ -16,17 +16,17 @@ public class UserServiceTest {
     private UserServiceImpl userService;
 
     @Test
-    @Transactional
     public void createUserTest() {
         // given
         User user = new User();
         user.setName("이관영");
         user.setNickname("roy");
-        user.setPassword("1234");
-        user.setSocial_id("33kfkfk");
-        user.setPhone_number("010-1234-1234");
-        user.setUse_yn("y");
-        user.setLogin_type("local");
+        user.setEmail("m123@marketboro.com");
+        user.setPhoneNumber("010-1234-1234");
+        user.setLoginType("regular");
+        user.setSocialId("33kfkfk");
+        user.setUseYn("y");
+
         // when
         Long id = userService.createUser(user);
         // then
@@ -40,6 +40,6 @@ public class UserServiceTest {
         // when
         User foundUser = userService.findUser(id);
         // then
-        Assertions.assertThat(foundUser.getName()).isEqualTo("마켓봄프로");
+        Assertions.assertThat(foundUser.getName()).isEqualTo("이관영");
     }
 }

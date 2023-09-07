@@ -1,10 +1,7 @@
 package org.awesomeboro.awesome_bro.user;
 
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository {
-    Long save(User user);
-    User findOne(Long id);
-    Optional<User> findByEmail(String email);
-
+public interface UserRepository extends JpaRepository<User, Long> {
+    
 }
