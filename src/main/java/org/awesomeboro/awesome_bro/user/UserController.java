@@ -18,9 +18,7 @@ public class UserController {
     @PostMapping
     public ApiResponse<User> createUser(@RequestBody User user) {
         System.out.println("user = " + user);
-//        Long userId = userService.createUser(user);
         return createSuccess(userService.signUp(user));
-
     }
 
     // 사용자 조회
