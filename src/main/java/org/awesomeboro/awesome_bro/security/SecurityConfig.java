@@ -1,7 +1,6 @@
 package org.awesomeboro.awesome_bro.security;
 
 import lombok.RequiredArgsConstructor;
-import org.awesomeboro.awesome_bro.user.UserService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +17,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserService userService;
-    private final String[] allowedUrls = {"/"}
+    private final TokenProvider tokenProvider;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     /**
      * PasswordEncoder를 Bean으로 등록
      */
@@ -28,17 +28,29 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                // token을 사용하는 방식이기 때문에 csrf를 disable합니다.
                 .csrf().disable()
-                .headers(headers -> headers.frameOptions().sameOrigin())
-                .authorizeHttpRequests(requests ->
-                        requests.requestMatchers(allowedUrls).permitAll()	// requestMatchers의 인자로 전달된 url은 모두에게 허용
-                                .anyRequest().authenticated()	// 그 외의 모든 요청은 인증 필요
-                )
-                .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )	// 세션을 사용하지 않으므로 STATELESS 설정
-                .build();
+
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
+
+                // 세션을 사용하지 않기 때문에 STATELESS로 설정
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
+                .and()
+                .authorizeHttpRequests() // HttpServletRequest를 사용하는 요청들에 대한 접근제한을 설정하겠다.
+                .requestMatchers("/api/authenticate").permitAll() // 로그인 api
+                .requestMatchers("/user").permitAll() // 회원가입 api
+                .anyRequest().authenticated() // 그 외 인증 없이 접근X
+
+                .and()
+                .apply(new JwtSecurityConfig(tokenProvider)); // JwtFilter를 addFilterBefore로 등록했던 JwtSecurityConfig class 적용
+
+        return httpSecurity.build();
     }
 }

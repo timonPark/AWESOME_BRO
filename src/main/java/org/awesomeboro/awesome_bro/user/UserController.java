@@ -3,24 +3,19 @@ package org.awesomeboro.awesome_bro.user;
 import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
-
     // 사용자 생성
     @PostMapping
-    public ResponseEntity<Long> createUser(@RequestBody User user) {
-        String userPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(userPassword);
-        Long userId = userService.createUser(user);
-        return ResponseEntity.ok(userId);
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        System.out.println("user = " + user);
+//        Long userId = userService.createUser(user);
+        return ResponseEntity.ok(userService.signUp(user));
     }
 
     // 사용자 조회
@@ -32,9 +27,5 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
-
-    // 로그인
-    @PostMapping("/login")
-    public
 
 }
