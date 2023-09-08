@@ -25,18 +25,19 @@ public class UserServiceTest {
     public void createUserTest() {
         // given
         User user = new User();
-        user.setName("이관영");
+        user.setName("박종훈");
         user.setNickname("roy");
-        user.setEmail("m123@marketboro.com");
+        user.setPassword("1234");
+        user.setEmail("park@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
         user.setLoginType("regular");
         user.setSocialId("33kfkfk");
         user.setUseYn("y");
 
         // when
-        Long id = userService.createUser(user);
+        User user1= userService.signUp(user);
         // then
-        assertNotEquals(id, null);
+        assertEquals(user1.getName(), "박종훈");
     }
 
     @Test

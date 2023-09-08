@@ -3,8 +3,11 @@ package org.awesomeboro.awesome_bro.user;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
-import lombok.Getter;
-import lombok.Setter;
+
+import java.util.Set;
+
+import lombok.*;
+import org.awesomeboro.awesome_bro.auth.Authority;
 import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -13,6 +16,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User {
     @jakarta.persistence.Id
@@ -54,4 +60,12 @@ public class User {
         this.useYn = "y";
         return this;
     }
+  
+    
+    @ManyToMany
+    @JoinTable(
+            name = "user_authority",
+            joinColumns = {@JoinColumn(name = "id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
+    private Set<Authority> authorities;
 }
