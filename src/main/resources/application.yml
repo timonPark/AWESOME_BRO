@@ -15,6 +15,7 @@ spring:
         format_sql: true
       dialect: org.hibernate.dialect.MySQL8InnoDBDialect
 
+
 logging:
   level:
     org.hibernate.SQL: debug

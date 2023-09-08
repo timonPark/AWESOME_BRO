@@ -4,10 +4,12 @@ import static org.awesomeboro.awesome_bro.controller.ApiResponse.createSuccess;
 
 import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.controller.ApiResponse;
+import org.awesomeboro.awesome_bro.dto.user.TokenDto;
+import org.awesomeboro.awesome_bro.dto.user.UserLoginDto;
+import org.awesomeboro.awesome_bro.dto.user.UserSignUpDto;
 import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,11 +18,25 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    // 사용자 생성
+    /**
+     * 회원가입
+     * @param user
+     * @return
+     */
     @PostMapping
-    public ApiResponse<User> createUser(@RequestBody User user) {
-        System.out.println("user = " + user);
-        return createSuccess(userService.signUp(user));
+    public ApiResponse<User> createUser(@RequestBody UserSignUpDto user) {
+        return createSuccess(userService.createUser(user));
+    }
+
+    /**
+     * 로그인
+     * @return
+     */
+    @PostMapping("/login")
+//    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    public ApiResponse<TokenDto> login(@RequestBody UserLoginDto user) {
+        System.out.println(user);
+        return createSuccess(userService.login(user));
     }
 
     // 사용자 조회
@@ -34,8 +50,9 @@ public class UserController {
     }
 
     @PostMapping("/social")
-    public ApiResponse<Long> socialLoginAndSignUp(@RequestBody SocialLoginUserDto user) {
-        return createSuccess(userService.socialLogin(user).getId());
+    public ApiResponse<TokenDto> socialLoginAndSignUp(@RequestBody SocialLoginUserDto user) {
+//        return createSuccess(userService.socialLogin(user).getId());
+            return createSuccess(userService.socialLogin(user));
     }
 
 }
