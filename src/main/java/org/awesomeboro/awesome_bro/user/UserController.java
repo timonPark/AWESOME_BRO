@@ -4,6 +4,7 @@ import static org.awesomeboro.awesome_bro.controller.ApiResponse.createSuccess;
 
 import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.controller.ApiResponse;
+import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
     // 사용자 생성
@@ -33,6 +34,11 @@ public class UserController {
             throw new UserNotFoundException(id);
         }
         return createSuccess(user);
+    }
+
+    @PostMapping("/social")
+    public ApiResponse<Long> socialLoginAndSignUp(@RequestBody SocialLoginUserDto user) {
+        return createSuccess(userService.socialLogin(user).getId());
     }
 
 }

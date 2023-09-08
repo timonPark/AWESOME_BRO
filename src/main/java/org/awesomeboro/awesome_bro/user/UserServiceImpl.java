@@ -1,7 +1,7 @@
 package org.awesomeboro.awesome_bro.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,5 +20,24 @@ public class UserServiceImpl implements UserService{
     @Override
     public User findUser(Long id){
         return userRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    @Transactional
+    public User socialLogin(final SocialLoginUserDto user) {
+        return socialLoginProgress(getSocialLoginUser(user), user);
+    }
+
+    private User socialLoginProgress(final User user, SocialLoginUserDto socialLoginUserDto) {
+        return user == null ?
+            userRepository.save(new User().socialLoginUserDtoConvertUser(socialLoginUserDto)) :
+            user;
+    }
+
+    public User getSocialLoginUser(final  SocialLoginUserDto user) {
+        return userRepository
+            .findBySocialIdAndLoginType(user.getSocialId(), user.getLoginType())
+            .stream()
+            .findFirst().orElse(null);
     }
 }
