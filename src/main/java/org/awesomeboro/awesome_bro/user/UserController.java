@@ -3,10 +3,11 @@ package org.awesomeboro.awesome_bro.user;
 import static org.awesomeboro.awesome_bro.controller.ApiResponse.createSuccess;
 
 import lombok.RequiredArgsConstructor;
+import org.awesomeboro.awesome_bro.auth.Token;
 import org.awesomeboro.awesome_bro.controller.ApiResponse;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,13 +15,25 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    // 사용자 생성
+
+    /**
+     * 회원가입
+     * @param user
+     * @return
+     */
     @PostMapping
     public ApiResponse<User> createUser(@RequestBody User user) {
-        System.out.println("user = " + user);
-//        Long userId = userService.createUser(user);
         return createSuccess(userService.signUp(user));
+    }
 
+    /**
+     * 로그인
+     * @return
+     */
+    @PostMapping("/login")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    public ApiResponse<Token> login(@RequestBody User user) {
+        return createSuccess(userService.login(user));
     }
 
     // 사용자 조회
