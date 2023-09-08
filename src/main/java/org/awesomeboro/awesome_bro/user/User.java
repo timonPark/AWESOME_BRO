@@ -3,15 +3,15 @@ package org.awesomeboro.awesome_bro.user;
 
 import jakarta.persistence.*;
 import java.sql.Timestamp;
+
 import java.util.Set;
 
 import lombok.*;
 import org.awesomeboro.awesome_bro.auth.Authority;
+import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-
 
 @Entity
 @Getter
@@ -49,8 +49,19 @@ public class User {
     @Column(nullable = false)
     private Timestamp updatedAt;
 
-
-
+    public User socialLoginUserDtoConvertUser(SocialLoginUserDto socialLoginUserDto) {
+        this.name = socialLoginUserDto.getName();
+        this.email = socialLoginUserDto.getEmail();
+        this.nickname = socialLoginUserDto.getNickname();
+        this.phoneNumber = "010-0000-0000";
+        this.loginType = socialLoginUserDto.getLoginType();
+        this.socialId = socialLoginUserDto.getSocialId();
+        this.profilePicture = socialLoginUserDto.getProfilePicture();
+        this.useYn = "y";
+        return this;
+    }
+  
+    
     @ManyToMany
     @JoinTable(
             name = "user_authority",
