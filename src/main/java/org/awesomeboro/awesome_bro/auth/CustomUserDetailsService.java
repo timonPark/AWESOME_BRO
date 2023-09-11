@@ -2,6 +2,7 @@ package org.awesomeboro.awesome_bro.auth;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.awesomeboro.awesome_bro.constant.LoginType;
 import org.awesomeboro.awesome_bro.exception.GeneralException;
 import org.awesomeboro.awesome_bro.user.User;
 import org.awesomeboro.awesome_bro.user.UserRepository;
@@ -9,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import static org.awesomeboro.awesome_bro.constant.LoginType.NORMAL;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -41,15 +44,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                         ))
                 .collect(Collectors.toList());
 
-        if (user.getLoginType() != NORMAL.getName()) {
-            return new org.springframework.security.core.userdetails.User(user.getEmail(),
-                    user.getPassword(),
-                    grantedAuthorities);
-        } else {
-            return new org.springframework.security.core.userdetails.User(user.getEmail(),
-                    user.getPassword(),
-                    grantedAuthorities);
-        }
+        return  new org.springframework.security.core.userdetails.User(user.getEmail(),
+            user.getLoginType() == NORMAL.getName() ? user.getPassword() : passwordEncoder.encode(user.getSocialId()),
+            grantedAuthorities);
 
     }
 }

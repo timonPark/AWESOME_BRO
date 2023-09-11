@@ -93,12 +93,13 @@ public class UserServiceImpl implements UserService{
      * @return
      */
     @Override
-//    @Transactional
+
     public TokenDto socialLogin(final UserDto user) {
         return socialLoginProgress(getSocialLoginUser(user), user);
     }
 
-    private TokenDto socialLoginProgress(final User user, UserDto userDto) {
+    @Transactional
+    TokenDto socialLoginProgress(final User user, UserDto userDto) {
         User socialLoginUser = user == null ?
                 userCommonService.createUserAuthorityToMapping(
                         userRepository.save(
