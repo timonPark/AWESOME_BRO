@@ -1,9 +1,9 @@
 package org.awesomeboro.awesome_bro.user;
 
-import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
-import org.awesomeboro.awesome_bro.dto.user.TokenDto;
-import org.awesomeboro.awesome_bro.dto.user.UserLoginDto;
-import org.awesomeboro.awesome_bro.dto.user.UserSignUpDto;
+import org.awesomeboro.awesome_bro.constant.ErrorCode;
+import org.awesomeboro.awesome_bro.dto.user.*;
+import org.awesomeboro.awesome_bro.exception.passwordException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -11,6 +11,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -27,13 +28,13 @@ public class UserServiceTest {
     @Transactional
     public void createUserTest() {
         // given
-        UserSignUpDto user = new UserSignUpDto();
+        UserDto user = new UserDto();
         user.setName("박종훈");
         user.setNickname("roy");
         user.setPassword("1234");
         user.setEmail("park@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
-        user.setLoginType("regular");
+        user.setLoginType("normal");
         user.setSocialId("33kfkfk");
 
         // when
@@ -51,9 +52,8 @@ public class UserServiceTest {
         user.setNickname("roy");
         user.setEmail("m1234@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
-        user.setLoginType("regular2");
+        user.setLoginType("normal");
         user.setSocialId("33kfkfk2");
-        user.setUseYn("y");
 
         // when
 //        Long id = userService.createUser(user).getId();
@@ -68,13 +68,13 @@ public class UserServiceTest {
     @DisplayName("로그인 - 비밀번호 유효성 검사 - 실패")
     void loginFailPasswordTest() {
         // given
-        UserLoginDto user = new UserLoginDto();
+        UserDto user = new UserDto();
         user.setEmail("marketboro1@marketboro.com");
         user.setPassword("마켓보로2");
         // when
         // then
-        Exception exception = assertThrows(RuntimeException.class, () -> userService.login(user));
-        assertThat(exception.getMessage()).isEqualTo("비밀번호가 일치하지 않습니다.");
+        passwordException exception = assertThrows(passwordException.class, () -> userService.login(user));
+        Assertions.assertEquals(ErrorCode.BAD_CREDENTIALS.getMessage(), exception.getMessage());
     }
     @Test
     @Transactional
@@ -120,7 +120,7 @@ public class UserServiceTest {
     @DisplayName("소셜아이디와 로그인타입으로 검색후 존재시 유저객체 반환")
     void getSocialLoginUserTestSuccess(){
         // given
-        SocialLoginUserDto socialLoginUser = new SocialLoginUserDto();
+        UserDto socialLoginUser = new UserDto();
         socialLoginUser.setName("손흥민");
         socialLoginUser.setNickname("CaptainSon");
         socialLoginUser.setEmail("SonCaptain7@tottenham.com");
@@ -128,7 +128,7 @@ public class UserServiceTest {
         socialLoginUser.setSocialId("5007848651");
         socialLoginUser.setProfilePicture("http://k.kakaocdn.net/dn/A1d2E/btsqZyraOkC/J8jJh8kXdC6NuPGNykDtKk/img_640x640.jpg");
 
-        UserSignUpDto user2 = new UserSignUpDto();
+        UserDto user2 = new UserDto();
         user2.setName("손흥민");
         user2.setNickname("CaptainSon");
         user2.setEmail("SonCaptain7@tottenham.com");
@@ -154,7 +154,7 @@ public class UserServiceTest {
     @DisplayName("소셜아이디와 로그인타입으로 검색후 없을 때 Null 반환")
     void getSocialLoginUserTestFail(){
         // given
-        SocialLoginUserDto socialLoginUser = new SocialLoginUserDto();
+        UserDto socialLoginUser = new UserDto();
         socialLoginUser.setName("케인");
         socialLoginUser.setNickname("kain");
         socialLoginUser.setEmail("kain@tottenham.com");
@@ -174,7 +174,7 @@ public class UserServiceTest {
     @DisplayName("SocialLoginUserDto로 소셜로그인시 유저객체로 반환 성공")
     void socialLoginTestSuccess(){
         // given
-        SocialLoginUserDto socialLoginUser = new SocialLoginUserDto();
+        UserDto socialLoginUser = new UserDto();
         socialLoginUser.setName("케인");
         socialLoginUser.setNickname("kain");
         socialLoginUser.setEmail("kain@tottenham.com");

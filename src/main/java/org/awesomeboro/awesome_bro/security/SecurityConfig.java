@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers("/user/login").permitAll() // 로그인 api
                 .requestMatchers("/user").permitAll() // 회원가입 api
                 .requestMatchers("/user/social").permitAll()
+                .requestMatchers("/user/{id}").permitAll()
                 .anyRequest().authenticated() // 그 외 인증 없이 접근X
 
                 .and()

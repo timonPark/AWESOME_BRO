@@ -2,15 +2,14 @@ package org.awesomeboro.awesome_bro.user;
 
 
 import jakarta.persistence.*;
-import java.sql.Timestamp;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.*;
-import org.awesomeboro.awesome_bro.auth.Authority;
-import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.awesomeboro.awesome_bro.common.BaseEntity;
+import org.awesomeboro.awesome_bro.dto.user.UserDto;
+import org.awesomeboro.awesome_bro.userAuthority.UserAuthority;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -19,8 +18,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@NamedEntityGraph(name = "User.withUserAuthorities", attributeNodes = {
+        @NamedAttributeNode("userAuthorities")
+})
 @EntityListeners(AuditingEntityListener.class)
-public class User {
+public class User extends BaseEntity {
     @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,32 +42,19 @@ public class User {
     private String socialId;
     @Column(length = 200,nullable = true)
     private String profilePicture;
-    @Column(length = 1,nullable = false)
-    private String useYn;
-    @CreatedDate
-    @Column(nullable = false)
-    private Timestamp createdAt;
-    @LastModifiedDate
-    @Column(nullable = false)
-    private Timestamp updatedAt;
 
-    public User socialLoginUserDtoConvertUser(SocialLoginUserDto socialLoginUserDto) {
-        this.name = socialLoginUserDto.getName();
-        this.email = socialLoginUserDto.getEmail();
-        this.nickname = socialLoginUserDto.getNickname();
+    @OneToMany(mappedBy = "user")
+    List<UserAuthority> userAuthorities = new ArrayList<>();
+
+    public User socialLoginUserDtoConvertUser(UserDto userDto) {
+        this.name = userDto.getName();
+        this.email = userDto.getEmail();
+        this.nickname = userDto.getNickname();
         this.phoneNumber = "010-0000-0000";
-        this.loginType = socialLoginUserDto.getLoginType();
-        this.socialId = socialLoginUserDto.getSocialId();
-        this.profilePicture = socialLoginUserDto.getProfilePicture();
-        this.useYn = "y";
+        this.loginType = userDto.getLoginType();
+        this.socialId = userDto.getSocialId();
+        this.profilePicture = userDto.getProfilePicture();
         return this;
     }
-  
-    
-    @ManyToMany
-    @JoinTable(
-            name = "user_authority",
-            joinColumns = {@JoinColumn(name = "id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
-    private Set<Authority> authorities;
 }
+

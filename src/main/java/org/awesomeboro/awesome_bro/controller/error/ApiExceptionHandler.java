@@ -2,7 +2,9 @@ package org.awesomeboro.awesome_bro.controller.error;
 
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.dto.ApiErrorResponse;
+import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 import org.awesomeboro.awesome_bro.exception.GeneralException;
+import org.awesomeboro.awesome_bro.exception.passwordException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -58,4 +60,33 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 				request
 		);
 	}
+
+	@ExceptionHandler(passwordException.class)
+	public ResponseEntity<Object> handlePasswordException(final Exception ex, WebRequest request) {
+		ErrorCode errorCode = ErrorCode.BAD_CREDENTIALS;
+		HttpStatus status = HttpStatus.UNAUTHORIZED;
+		return super.handleExceptionInternal(
+				ex,
+				ApiErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage()),
+				HttpHeaders.EMPTY,
+				status,
+				request
+		);
+	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<Object> handleUserNotFoundException(final UserNotFoundException ex, WebRequest request) {
+		ErrorCode errorCode = ErrorCode.LOGIN_ERROR; // 여러분의 ErrorCode에서 적절한 코드를 사용하세요.
+		HttpStatus status = HttpStatus.NOT_FOUND; // 404 상태 코드를 사용하거나 다른 적절한 상태 코드를 사용하세요.
+		return super.handleExceptionInternal(
+				ex,
+				ApiErrorResponse.of(false, errorCode.getCode(), ex.getMessage()),
+				HttpHeaders.EMPTY,
+				status,
+				request
+		);
+	}
+
+
+
 }

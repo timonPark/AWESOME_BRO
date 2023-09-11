@@ -15,7 +15,10 @@ public enum ErrorCode {
 	SPRING_BAD_REQUST(10001, ErrorCategory.CLIENT_SIDE, "Spring-detected bad request"),
 
 	INTERNAL_ERROR(20000, ErrorCategory.SERVER_SIDE, "internal error"),
-	SPRING_INTERNAL_ERROR(20001, ErrorCategory.SERVER_SIDE, "Spring-detected internal error");
+	SPRING_INTERNAL_ERROR(20001, ErrorCategory.SERVER_SIDE, "Spring-detected internal error"),
+	BAD_CREDENTIALS(20002, ErrorCategory.SERVER_SIDE, "비밀번호가 틀렸습니다."),
+	LOGIN_ERROR(20003, ErrorCategory.SERVER_SIDE, "로그인에 실패했습니다.");
+
 
 	private final Integer code;
 	private final ErrorCategory errorCategory;
@@ -26,7 +29,8 @@ public enum ErrorCode {
 	public String getMessage(String message) {
 		return Optional.ofNullable(message)
 				.filter(Predicate.not(String:: isBlank))
-				.orElse(getMessage());
+//				.orElse(getMessage());
+				.orElse(this.message);
 	}
 
 	public boolean isClientSideError() { return this.getErrorCategory() == ErrorCategory.CLIENT_SIDE; }
