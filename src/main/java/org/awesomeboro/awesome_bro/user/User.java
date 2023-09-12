@@ -43,7 +43,7 @@ public class User extends BaseEntity {
     @Column(length = 200,nullable = true)
     private String profilePicture;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<UserAuthority> userAuthorities = new ArrayList<>();
 
     public User socialLoginUserDtoConvertUser(UserDto userDto) {

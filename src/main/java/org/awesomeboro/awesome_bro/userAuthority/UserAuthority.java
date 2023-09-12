@@ -9,6 +9,7 @@ import org.awesomeboro.awesome_bro.auth.Authority;
 import org.awesomeboro.awesome_bro.common.BaseEntity;
 import org.awesomeboro.awesome_bro.user.User;
 
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
@@ -25,7 +26,7 @@ public class UserAuthority extends BaseEntity {
     @JoinColumn(name = "user_id")
     User user;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "authority_id")
     Authority authority;
 }
