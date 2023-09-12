@@ -8,14 +8,9 @@ import org.awesomeboro.awesome_bro.constant.ErrorCode;
 public class UserNotFoundException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public UserNotFoundException(Long id) {
-        super(ErrorCode.LOGIN_ERROR.getMessage());
-        this.errorCode = ErrorCode.LOGIN_ERROR;
-    }
-
-    public UserNotFoundException(String email) {
-        super(ErrorCode.UNDEFINED_EMAIL.getMessage());
-        this.errorCode = ErrorCode.UNDEFINED_EMAIL;
+    public UserNotFoundException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
     }
 }
 

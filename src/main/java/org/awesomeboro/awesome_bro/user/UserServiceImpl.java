@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
+import static org.awesomeboro.awesome_bro.constant.ErrorCode.*;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
@@ -50,21 +52,25 @@ public class UserServiceImpl implements UserService{
      * @param user
      * @return
      */
+
     public TokenDto login(UserDto user){
         // 1. 이메일, 비밀번호가 없으면 에러 처리
         if(user.getEmail().length() < 1 || user.getPassword().length() < 1){
             throw new RuntimeException("이메일과 비밀번호를 입력해주세요.");
         }
-        // 2. 가입되지 않은 이메일이면 에러 처리
-//        if(userRepository.findByEmail(user.getEmail()).isEmpty()){
-//            throw new RuntimeException("가입되지 않은 이메일입니다.");
-//        }
-        // 3. 탈퇴한 회원이면 에러 처리
-//        Optional<User> byEmail = userRepository.findByEmail(user.getEmail());
-//        if(userRepository.findByEmail(user.getEmail()).get().getUseYn().equals("n")){
-//            throw new UserNotFoundException(user.getEmail());
-//        }
         return authService.getToken(user);
+    }
+
+    /**
+     * 유저 탈퇴
+     *
+     * @param id
+     */
+    public Long deleteUser(long id){
+        User user = userRepository.findById(id).orElseThrow();
+        user.deactivate();
+        userRepository.save(user);
+        return id;
     }
 
 
@@ -127,11 +133,11 @@ public class UserServiceImpl implements UserService{
     public void signUpValidate(UserDto user){
         // 1. 이메일 이미 존재하면 에러 처리
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
-            throw new UserNotFoundException(user.getEmail());
+            throw new UserNotFoundException(EMAIL_ALREADY_EXISTS);
         }
         // 2. 비밀번호 자리수 8자리 이하 에러 처리
-        if(user.getPassword().length() <= 8 || user.getPassword().length() >= 15){
-            throw PasswordException.passwordLengthException(user.getPassword());
+        if(user.getPassword().length() < 8 || user.getPassword().length() > 15){
+            throw new PasswordException(PASSWORD_LENGTH_ERROR);
         }
     }
 }

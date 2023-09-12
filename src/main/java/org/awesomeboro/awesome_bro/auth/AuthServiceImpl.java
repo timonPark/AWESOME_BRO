@@ -1,13 +1,15 @@
 package org.awesomeboro.awesome_bro.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.dto.user.TokenDto;
 import org.awesomeboro.awesome_bro.dto.user.UserDto;
-import org.awesomeboro.awesome_bro.exception.passwordException;
+import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.security.JwtFilter;
 import org.awesomeboro.awesome_bro.security.TokenProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -39,7 +41,13 @@ public class AuthServiceImpl implements AuthService{
             // jwt만 넘겨줌
             return new TokenDto(jwt);
         }catch (BadCredentialsException e){
-            throw  new passwordException();
+            throw  new PasswordException(ErrorCode.WRONG_PASSWORD);
+        }catch (InternalAuthenticationServiceException e) {
+            System.out.println(e.getMessage()+e.getCause());
+            if(e.getCause() instanceof RuntimeException){
+                throw (RuntimeException) e.getCause();
+            }
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

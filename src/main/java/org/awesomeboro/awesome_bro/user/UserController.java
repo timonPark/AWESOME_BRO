@@ -3,6 +3,7 @@ package org.awesomeboro.awesome_bro.user;
 import static org.awesomeboro.awesome_bro.controller.ApiResponse.createSuccess;
 
 import lombok.RequiredArgsConstructor;
+import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.controller.ApiResponse;
 import org.awesomeboro.awesome_bro.dto.user.*;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
@@ -40,7 +41,7 @@ public class UserController {
     public ApiResponse<User> getUser(@PathVariable Long id) {
         User user = userService.findUser(id);
         if (user == null) {
-            throw new UserNotFoundException(id);
+            throw new UserNotFoundException(ErrorCode.UNDEFINED_EMAIL);
         }
         return createSuccess(user);
     }

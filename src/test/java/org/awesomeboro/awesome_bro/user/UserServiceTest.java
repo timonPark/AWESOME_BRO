@@ -2,7 +2,8 @@ package org.awesomeboro.awesome_bro.user;
 
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.dto.user.*;
-import org.awesomeboro.awesome_bro.exception.passwordException;
+import org.awesomeboro.awesome_bro.exception.PasswordException;
+import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -25,21 +27,90 @@ public class UserServiceTest {
 
     @Test
     @Transactional
-    public void createUserTest() {
+    @DisplayName("회원가입 - 이미 존재하는 이메일로 회원가입 - 실패")
+    public void createUserDuplicateEmail() {
         // given
         UserDto user = new UserDto();
         user.setName("박종훈");
         user.setNickname("roy");
-        user.setPassword("1234");
+        user.setPassword("12345678");
         user.setEmail("park@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
         user.setLoginType("normal");
         user.setSocialId("33kfkfk");
+        userService.createUser(user); // 첫 번째 회원가입
 
-        // when
-        User user1= userService.createUser(user);
+
+        // 존재하는 이메일로 회원가입
+        UserDto user2 = new UserDto();
+        user2.setName("박종훈2");
+        user2.setNickname("roy2");
+        user2.setPassword("12345678");
+        user2.setEmail("park@marketboro.com");
+        user2.setPhoneNumber("010-1233-1233");
+        user2.setLoginType("normal");
+        user2.setSocialId("33kfkfk2");
+
         // then
-        assertEquals(user1.getName(), "박종훈");
+        Exception exception = assertThrows(UserNotFoundException.class, () -> userService.createUser(user2));
+        assertTrue(exception.getMessage().contains(ErrorCode.EMAIL_ALREADY_EXISTS.getMessage()));
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("회원가입 - 비밀번호 자리수 8자리 이하 유효성 검사 - 실패")
+    public void createUserPasswordLengthUnder8(){
+        // given
+        UserDto user = new UserDto();
+        user.setName("이관영");
+        user.setNickname("스프링king");
+        user.setPassword("하나둘셋");
+        user.setEmail("rhksdud23000@marketboro.com");
+        user.setPhoneNumber("010-1234-1234");
+        user.setLoginType("normal");
+        // then
+        Exception exception = assertThrows(PasswordException.class, () -> userService.createUser(user));
+        assertTrue(exception.getMessage().contains(ErrorCode.PASSWORD_LENGTH_ERROR.getMessage()));
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("회원가입 - 비밀번호 자리수 15자리 이상 유효성 검사 - 실패")
+    public void createUserPasswordLengthOver15(){
+        // given
+        UserDto user = new UserDto();
+        user.setName("이관영");
+        user.setNickname("스프링king");
+        user.setPassword("하나둘셋다섯여섯일곱여덟아홉열열하나열둘열셋");
+        user.setEmail("rhksdud23000@marketboro.com");
+        user.setPhoneNumber("010-1234-1234");
+        user.setLoginType("normal");
+        // then
+        Exception exception = assertThrows(PasswordException.class, () -> userService.createUser(user));
+        assertTrue(exception.getMessage().contains(ErrorCode.PASSWORD_LENGTH_ERROR.getMessage()));
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("회원가입 - 성공")
+    public void createUserSuccess(){
+        // given
+        UserDto user = new UserDto();
+        user.setName("이관영");
+        user.setNickname("스프링king");
+        user.setPassword("마켓보로마켓보로");
+        user.setEmail("rhksdud23000@marketboro.com");
+        user.setPhoneNumber("010-1234-1234");
+        user.setLoginType("normal");
+        User createdUser = userService.createUser(user);
+        // when
+        User foundUser = userService.findUser(createdUser.getId());
+        // then
+        assertThat(foundUser.getName()).isEqualTo(user.getName());
+        assertThat(foundUser.getNickname()).isEqualTo(user.getNickname());
+        assertThat(foundUser.getEmail()).isEqualTo(user.getEmail());
+        assertThat(foundUser.getPhoneNumber()).isEqualTo(user.getPhoneNumber());
+        assertThat(foundUser.getLoginType()).isEqualTo(user.getLoginType());
     }
 
     @Test
@@ -64,54 +135,104 @@ public class UserServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("로그인 - 비밀번호 유효성 검사 - 실패")
-    void loginFailPasswordTest() {
+    @DisplayName("로그인 - 성공")
+    void loginSuccess() {
         // given
         UserDto user = new UserDto();
-        user.setEmail("marketboro1@marketboro.com");
-        user.setPassword("마켓보로2");
+        user.setName("이관영");
+        user.setNickname("스프링king");
+        user.setPassword("마켓보로마켓보로");
+        user.setEmail("rhksdud23000@marketboro.com");
+        user.setPhoneNumber("010-1234-1234");
+        user.setLoginType("normal");
+        User createdUser = userService.createUser(user);
         // when
         // then
-        passwordException exception = assertThrows(passwordException.class, () -> userService.login(user));
-        Assertions.assertEquals(ErrorCode.BAD_CREDENTIALS.getMessage(), exception.getMessage());
+        assertThat(createdUser.getName()).isEqualTo(user.getName());
+        assertThat(createdUser.getNickname()).isEqualTo(user.getNickname());
+        assertThat(createdUser.getEmail()).isEqualTo(user.getEmail());
+        assertThat(createdUser.getPhoneNumber()).isEqualTo(user.getPhoneNumber());
+        assertThat(createdUser.getLoginType()).isEqualTo(user.getLoginType());
+
+        assertEquals("이관영", createdUser.getName());
+        assertEquals("스프링king", createdUser.getNickname());
+        assertEquals("rhksdud23000@marketboro.com", createdUser.getEmail());
+        assertEquals("010-1234-1234", createdUser.getPhoneNumber());
+        assertEquals("normal", createdUser.getLoginType());
+
+
     }
     @Test
     @Transactional
-    @DisplayName("회원가입 - 비밀번호 자리수 8자리 이하 - 실패")
-    void loginPasswordLengthFailTest() {
+    @DisplayName("로그인 - 잘못된 비밀번호 로그인 시도 - 실패")
+    void loginFailWrongPassword() {
+        // given
+        UserDto user = new UserDto();
+        user.setName("이관영");
+        user.setNickname("스프링king");
+        user.setPassword("마켓보로마켓보로");
+        user.setEmail("rhksdud23000@marketboro.com");
+        user.setPhoneNumber("010-1234-1234");
+        user.setLoginType("normal");
+        userService.createUser(user);
 
-
+        // 잘못된 비밀번호로 로그인 시도
+        UserDto loginUser = new UserDto();
+        loginUser.setEmail("rhksdud23000@marketboro.com");
+        loginUser.setPassword("잘못된패스워드");
+        // when
+        // then
+        PasswordException exception = assertThrows(PasswordException.class, () -> userService.login(loginUser));
+        Assertions.assertEquals(ErrorCode.WRONG_PASSWORD.getMessage(), exception.getMessage());
     }
-
-    @Test
-    @Transactional
-    @DisplayName("회원가입 - 가입된 이메일 유효성 검사 - 실패")
-    void test2() {
-
-    }
-
-    @Test
-    @Transactional
-    @DisplayName("회원가입 - 가입된 이메일 유효성")
-    void test3() {
-
-    }
-
-    @Test
-    @Transactional
-    @DisplayName("로그인 - 아이디 유효성 검사 - 실패")
-    void test4() {
-
-    }
-
 
 
     @Test
     @Transactional
-    @DisplayName("로그인 - 비밀번호 유효성 검사 - 성공")
-    void test6() {
+    @DisplayName("로그인 - 탈퇴한 회원 유효성 검사 - 실패")
+    void loginFailWithdrawUser() {
+        // given
+        UserDto user = new UserDto();
+        user.setName("이관영");
+        user.setNickname("스프링king");
+        user.setPassword("마켓보로마켓보로");
+        user.setEmail("rhksdud23000@marketboro.com");
+        user.setPhoneNumber("010-1234-1234");
+        user.setLoginType("normal");
+        User createdUser = userService.createUser(user);
+        // when
+        userService.deleteUser(createdUser.getId());
 
+        // when & then
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.login(user));
+        System.out.println(exception.getMessage()+exception.getErrorCode());
+        Assertions.assertEquals(ErrorCode.DELETED_USER.getMessage(), exception.getMessage());
     }
+
+    @Test
+    @Transactional
+    @DisplayName("로그인 - 존재하지 않는 회원 유효성 검사 - 실패")
+    void loginFailUndefinedUser() {
+        // given
+        UserDto user = new UserDto();
+        user.setName("이관영");
+        user.setNickname("스프링king");
+        user.setPassword("마켓보로마켓보로");
+        user.setEmail("rhksdud23000@marketboro.com");
+        user.setPhoneNumber("010-1234-1234");
+        user.setLoginType("normal");
+        userService.createUser(user);
+
+        // 잘못된 비밀번호로 로그인 시도
+        UserDto loginUser = new UserDto();
+        loginUser.setEmail("market@marketboro.com");
+        loginUser.setPassword("마켓보로마켓보로");
+        // when
+        // then
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.login(loginUser));
+        Assertions.assertEquals(ErrorCode.UNDEFINED_EMAIL.getMessage(), exception.getMessage());
+    }
+
 
 
     @Test

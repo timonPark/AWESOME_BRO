@@ -25,4 +25,8 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Column(nullable = false)
     private Timestamp updatedAt;
+
+    public void deactivate(){
+        this.useYn = "n";
+    }
 }

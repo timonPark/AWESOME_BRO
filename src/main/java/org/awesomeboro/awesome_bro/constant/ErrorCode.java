@@ -16,11 +16,13 @@ public enum ErrorCode {
 
 	INTERNAL_ERROR(20000, ErrorCategory.SERVER_SIDE, "internal error"),
 	SPRING_INTERNAL_ERROR(20001, ErrorCategory.SERVER_SIDE, "Spring-detected internal error"),
-	BAD_CREDENTIALS(20002, ErrorCategory.SERVER_SIDE, "비밀번호가 틀렸습니다."),
+	WRONG_PASSWORD(20002, ErrorCategory.SERVER_SIDE, "비밀번호가 틀렸습니다."),
 	LOGIN_ERROR(20003, ErrorCategory.SERVER_SIDE, "로그인에 실패했습니다."),
 	PASSWORD_LENGTH_ERROR(20004, ErrorCategory.SERVER_SIDE, "비밀번호는 8자 이상 15자 이하로 입력해주세요."),
 	UNDEFINED_EMAIL(20005, ErrorCategory.SERVER_SIDE, "가입되지 않은 이메일입니다."),
-	EMAIL_ALREADY_EXISTS(20006, ErrorCategory.SERVER_SIDE, "이미 가입된 이메일입니다.");
+	EMAIL_ALREADY_EXISTS(20006, ErrorCategory.SERVER_SIDE, "이미 가입된 이메일입니다."),
+	DELETED_USER(20007, ErrorCategory.SERVER_SIDE, "탈퇴한 회원입니다.");
+
 
 
 	private final Integer code;
