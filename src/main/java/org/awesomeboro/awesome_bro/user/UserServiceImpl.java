@@ -72,14 +72,14 @@ public class UserServiceImpl implements UserService{
     // 유저,권한 정보를 가져오는 메소드
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities(String email) {
-        return userRepository.findOneWithUserAuthoritiesByEmail(email);
+        return userRepository.findByEmail(email);
     }
 
     // 현재 securityContext에 저장된 username의 정보만 가져오는 메소드
     @Transactional(readOnly = true)
     public Optional<User> getMyUserWithAuthorities() {
         return SecurityUtil.getCurrentUsername()
-                .flatMap(userRepository::findOneWithUserAuthoritiesByEmail);
+                .flatMap(userRepository::findByEmail);
     }
 
     @Override
