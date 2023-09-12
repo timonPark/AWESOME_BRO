@@ -3,16 +3,19 @@ package org.awesomeboro.awesome_bro.exception;
 import lombok.Getter;
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
 
+// 사용자를 찾지 못했을 때 발생하는 예외
 @Getter
 public class UserNotFoundException extends RuntimeException {
     private final ErrorCode errorCode;
 
     public UserNotFoundException(Long id) {
-        super(String.format(ErrorCode.LOGIN_ERROR.getMessage(), id));
+        super(ErrorCode.LOGIN_ERROR.getMessage());
         this.errorCode = ErrorCode.LOGIN_ERROR;
     }
+
     public UserNotFoundException(String email) {
-        super(String.format(ErrorCode.LOGIN_ERROR.getMessage(), email));
-        this.errorCode = ErrorCode.LOGIN_ERROR;
+        super(ErrorCode.UNDEFINED_EMAIL.getMessage());
+        this.errorCode = ErrorCode.UNDEFINED_EMAIL;
     }
 }
+

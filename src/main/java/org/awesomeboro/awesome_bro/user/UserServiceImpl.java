@@ -2,8 +2,8 @@ package org.awesomeboro.awesome_bro.user;
 
 import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.auth.AuthService;
-import org.awesomeboro.awesome_bro.auth.Authority;
 import org.awesomeboro.awesome_bro.dto.user.*;
+import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 import org.awesomeboro.awesome_bro.utils.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Transactional
-    TokenDto socialLoginProgress(final User user, UserDto userDto) {
+    public TokenDto socialLoginProgress(final User user, UserDto userDto) {
         User socialLoginUser = user == null ?
                 userCommonService.createUserAuthorityToMapping(
                         userRepository.save(
@@ -127,11 +127,11 @@ public class UserServiceImpl implements UserService{
     public void signUpValidate(UserDto user){
         // 1. 이메일 이미 존재하면 에러 처리
         if(userRepository.findByEmail(user.getEmail()).isPresent()){
-            throw new RuntimeException("이미 가입되어 있는 유저입니다.");
+            throw new UserNotFoundException(user.getEmail());
         }
         // 2. 비밀번호 자리수 8자리 이하 에러 처리
-        if(user.getPassword().length() < 8){
-            throw new RuntimeException("비밀번호는 8자리 이상이어야 합니다.");
+        if(user.getPassword().length() <= 8 || user.getPassword().length() >= 15){
+            throw PasswordException.passwordLengthException(user.getPassword());
         }
     }
 }
