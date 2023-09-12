@@ -1,41 +1,38 @@
 package org.awesomeboro.awesome_bro.user;
 
 import lombok.RequiredArgsConstructor;
-import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
-import org.awesomeboro.awesome_bro.auth.AuthRepository;
-import org.awesomeboro.awesome_bro.auth.Authority;
+import org.awesomeboro.awesome_bro.auth.AuthService;
+import org.awesomeboro.awesome_bro.dto.user.*;
+import org.awesomeboro.awesome_bro.exception.PasswordException;
+import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
+import org.awesomeboro.awesome_bro.utils.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
-import java.util.Collections;
 import java.util.Optional;
+
+import static org.awesomeboro.awesome_bro.constant.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
-    private final AuthRepository authRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
+    private final UserCommonService userCommonService;
 
+    /**
+     * 회원가입
+     * @param user
+     * @return
+     */
     @Override
     @Transactional
-    public User signUp(User user){
-        if(userRepository.findByEmail(user.getEmail()).isPresent()){
-            throw new RuntimeException("이미 가입되어 있는 유저입니다.");
-        }
+    public User createUser(UserDto user){
+        // 이메일 및 비밀번호 검증
+        signUpValidate(user);
         // 가입 안되어 있으면 진행
-        // 1.권한정보 만들기
-//        Authority authority = Authority.builder()
-//                .authorityName("ROLE_USER")
-//                .build();
-        Authority authority = authRepository.findByAuthorityName("ROLE_USER")
-                .orElseGet(() -> {
-                    Authority newAuthority = Authority.builder().authorityName("ROLE_USER").build();
-                    return authRepository.save(newAuthority);
-                });
-        // 2. 유저 정보 만들기
+        // 3. 유저 정보 만들기
         User userInfo = User.builder()
                 .name(user.getName())
                 .email(user.getEmail())
@@ -45,23 +42,50 @@ public class UserServiceImpl implements UserService{
                 .loginType(user.getLoginType())
                 .socialId(user.getSocialId())
                 .profilePicture(user.getProfilePicture())
-                .authorities(Collections.singleton(authority))
-                .useYn("y")
                 .build();
 
-        return userRepository.save(userInfo);
+        return userCommonService.createUserAuthorityToMapping(userRepository.save(userInfo)).getUser();
     }
+
+    /**
+     * 로그인
+     * @param user
+     * @return
+     */
+
+    public TokenDto login(UserDto user){
+        // 1. 이메일, 비밀번호가 없으면 에러 처리
+        if(user.getEmail().length() < 1 || user.getPassword().length() < 1){
+            throw new RuntimeException("이메일과 비밀번호를 입력해주세요.");
+        }
+        return authService.getToken(user);
+    }
+
+    /**
+     * 유저 탈퇴
+     *
+     * @param id
+     */
+    public Long deleteUser(long id){
+        User user = userRepository.findById(id).orElseThrow();
+        user.deactivate();
+        userRepository.save(user);
+        return id;
+    }
+
+
+
     // 유저,권한 정보를 가져오는 메소드
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities(String email) {
-        return userRepository.findOneWithAuthoritiesByEmail(email);
+        return userRepository.findByEmail(email);
     }
 
     // 현재 securityContext에 저장된 username의 정보만 가져오는 메소드
     @Transactional(readOnly = true)
     public Optional<User> getMyUserWithAuthorities() {
         return SecurityUtil.getCurrentUsername()
-                .flatMap(userRepository::findOneWithAuthoritiesByEmail);
+                .flatMap(userRepository::findByEmail);
     }
 
     @Override
@@ -69,22 +93,51 @@ public class UserServiceImpl implements UserService{
         return userRepository.findById(id).orElseThrow();
     }
 
+    /**
+     * 소셜 로그인
+     * @param user
+     * @return
+     */
     @Override
-    @Transactional
-    public User socialLogin(final SocialLoginUserDto user) {
+
+    public TokenDto socialLogin(final UserDto user) {
         return socialLoginProgress(getSocialLoginUser(user), user);
     }
 
-    private User socialLoginProgress(final User user, SocialLoginUserDto socialLoginUserDto) {
-        return user == null ?
-            userRepository.save(new User().socialLoginUserDtoConvertUser(socialLoginUserDto)) :
-            user;
+    @Transactional
+    public TokenDto socialLoginProgress(final User user, UserDto userDto) {
+        User socialLoginUser = user == null ?
+                userCommonService.createUserAuthorityToMapping(
+                        userRepository.save(
+                                new User().socialLoginUserDtoConvertUser(userDto)
+                        )
+                )
+                        .getUser():
+                user;
+
+        UserDto userLoginInfo = new UserDto();
+        userLoginInfo.setEmail(socialLoginUser.getEmail());
+        userLoginInfo.setPassword(socialLoginUser.getSocialId());
+
+        return authService.getToken(userLoginInfo);
+
     }
 
-    public User getSocialLoginUser(final  SocialLoginUserDto user) {
+    public User getSocialLoginUser(final  UserDto user) {
         return userRepository
             .findBySocialIdAndLoginType(user.getSocialId(), user.getLoginType())
             .stream()
             .findFirst().orElse(null);
+    }
+
+    public void signUpValidate(UserDto user){
+        // 1. 이메일 이미 존재하면 에러 처리
+        if(userRepository.findByEmail(user.getEmail()).isPresent()){
+            throw new UserNotFoundException(EMAIL_ALREADY_EXISTS);
+        }
+        // 2. 비밀번호 자리수 8자리 이하 에러 처리
+        if(user.getPassword().length() < 8 || user.getPassword().length() > 15){
+            throw new PasswordException(PASSWORD_LENGTH_ERROR);
+        }
     }
 }

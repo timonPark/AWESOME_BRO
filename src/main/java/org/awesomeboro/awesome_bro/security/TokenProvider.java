@@ -29,6 +29,11 @@ public class TokenProvider implements InitializingBean {
     private Key key;
 
 
+    /**
+     * 토큰제공 메서드
+     * @param secret
+     * @param tokenValidityInSeconds
+     */
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
@@ -36,6 +41,9 @@ public class TokenProvider implements InitializingBean {
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
     }
 
+    /**
+     * base64로 인코딩된 secret값을 decode해서 key변수에 할당
+     */
     // 빈이 생성되고 주입을 받은 후에 secret값을 Base64 Decode해서 key 변수에 할당하기 위해
     @Override
     public void afterPropertiesSet() {
@@ -43,6 +51,11 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    /**
+     * Authentication 객체의 권한정보를 이용해서 토큰을 생성하는 메서드
+     * @param authentication
+     * @return
+     */
     public String createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -73,7 +86,6 @@ public class TokenProvider implements InitializingBean {
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
-        System.out.println("이메일?"+claims.getSubject());
         User principal = new User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);

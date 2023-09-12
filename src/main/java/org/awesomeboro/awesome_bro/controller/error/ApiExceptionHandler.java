@@ -3,6 +3,8 @@ package org.awesomeboro.awesome_bro.controller.error;
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.dto.ApiErrorResponse;
 import org.awesomeboro.awesome_bro.exception.GeneralException;
+import org.awesomeboro.awesome_bro.exception.PasswordException;
+import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -58,4 +60,33 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 				request
 		);
 	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<Object> handleUserNotFoundException(final UserNotFoundException ex, WebRequest request) {
+		ErrorCode errorCode = ex.getErrorCode();
+		HttpStatus status = HttpStatus.NOT_FOUND;  // 적절한 상태 코드를 사용하세요.
+		return super.handleExceptionInternal(
+				ex,
+				ApiErrorResponse.of(false, errorCode.getCode(), ex.getMessage()),
+				HttpHeaders.EMPTY,
+				status,
+				request
+		);
+	}
+
+	@ExceptionHandler(PasswordException.class)
+	public ResponseEntity<Object> handlePasswordException(final PasswordException ex, WebRequest request) {
+		ErrorCode errorCode = ex.getErrorCode();
+		HttpStatus status = HttpStatus.NOT_FOUND;  // 적절한 상태 코드를 사용하세요.
+		return super.handleExceptionInternal(
+				ex,
+				ApiErrorResponse.of(false, errorCode.getCode(), ex.getMessage()),
+				HttpHeaders.EMPTY,
+				status,
+				request
+		);
+	}
+
+
+
 }

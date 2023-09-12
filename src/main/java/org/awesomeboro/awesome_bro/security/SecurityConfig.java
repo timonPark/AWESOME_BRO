@@ -1,7 +1,6 @@
 package org.awesomeboro.awesome_bro.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,8 +43,10 @@ public class SecurityConfig {
 
                 .and()
                 .authorizeHttpRequests() // HttpServletRequest를 사용하는 요청들에 대한 접근제한을 설정하겠다.
-                .requestMatchers("/api/authenticate").permitAll() // 로그인 api
+                .requestMatchers("/user/login").permitAll() // 로그인 api
                 .requestMatchers("/user").permitAll() // 회원가입 api
+                .requestMatchers("/user/social").permitAll()
+                .requestMatchers("/user/{id}").permitAll()
                 .anyRequest().authenticated() // 그 외 인증 없이 접근X
 
                 .and()
