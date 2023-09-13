@@ -1,10 +1,15 @@
 package org.awesomeboro.awesome_bro.user;
 
+import jakarta.persistence.EntityGraph;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.auth.AuthService;
 import org.awesomeboro.awesome_bro.dto.user.*;
 import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
+import org.awesomeboro.awesome_bro.userAuthority.UserAuthorityService;
 import org.awesomeboro.awesome_bro.utils.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +25,8 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
     private final UserCommonService userCommonService;
+    private final EntityManager entityManager;
+    private final UserAuthorityService userAuthorityService;
 
     /**
      * 회원가입
@@ -77,8 +84,10 @@ public class UserServiceImpl implements UserService{
 
     // 유저,권한 정보를 가져오는 메소드
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthorities(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<User> getUserWithAuthorities(String name) {
+        Optional<User> user = userRepository.findByEmail(name);
+        System.out.println(user);
+        return user;
     }
 
     // 현재 securityContext에 저장된 username의 정보만 가져오는 메소드
@@ -89,8 +98,21 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User findUser(Long id){
-        return userRepository.findById(id).orElseThrow();
+    public UserInfoDto findUser(Long id){
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(UNDEFINED_EMAIL));
+        return convertToUserInfoDto(user);
+    }
+
+    private UserInfoDto convertToUserInfoDto(User user){
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setId(user.getId());
+        userInfoDto.setName(user.getName());
+        userInfoDto.setEmail(user.getEmail());
+        userInfoDto.setNickname(user.getNickname());
+        userInfoDto.setPhoneNumber(user.getPhoneNumber());
+        userInfoDto.setProfilePicture(user.getProfilePicture());
+        return userInfoDto;
+
     }
 
     /**
@@ -140,4 +162,5 @@ public class UserServiceImpl implements UserService{
             throw new PasswordException(PASSWORD_LENGTH_ERROR);
         }
     }
+
 }

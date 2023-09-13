@@ -19,6 +19,7 @@ public class BaseErrorController implements ErrorController {
 	public ModelAndView errorHtml(HttpServletResponse response) {
 		HttpStatus status = HttpStatus.valueOf(response.getStatus());
 		ErrorCode errorCode = status.is4xxClientError() ? ErrorCode.BAD_REQUEST : ErrorCode.INTERNAL_ERROR;
+		System.out.println("이엑스:"+response+"바디:"+response.getStatus()+"헤더:"+response.getHeaderNames()+"스테이터스코드:"+status+"리퀘스트:"+response.getContentType());
 		return new ModelAndView("error", Map.of(
 				"statusCode", status.value(),
 				"errorCode", errorCode,
@@ -31,6 +32,7 @@ public class BaseErrorController implements ErrorController {
 	public ResponseEntity<ApiErrorResponse> error(HttpServletResponse response) {
 		HttpStatus status = HttpStatus.valueOf(response.getStatus());
 		ErrorCode errorCode = status.is4xxClientError() ? ErrorCode.BAD_REQUEST : ErrorCode.INTERNAL_ERROR;
+		System.out.println("이엑스:"+status+"바디:"+response.getStatus()+"헤더:"+response.getHeaderNames()+"스테이터스코드:"+status+"리퀘스트:"+response.getContentType());
 		return ResponseEntity
 				.status (status)
 				.body(ApiErrorResponse.of(false, errorCode));

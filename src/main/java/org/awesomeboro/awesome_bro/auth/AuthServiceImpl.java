@@ -8,6 +8,8 @@ import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.security.JwtFilter;
 import org.awesomeboro.awesome_bro.security.TokenProvider;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,8 +40,7 @@ public class AuthServiceImpl implements AuthService{
             HttpHeaders httpHeaders = new HttpHeaders();
             // response header에 jwt token에 넣어줌
             httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-            // jwt만 넘겨줌
-            return new TokenDto(jwt);
+            return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK).getBody();
         }catch (BadCredentialsException e){
             throw  new PasswordException(ErrorCode.WRONG_PASSWORD);
         }catch (InternalAuthenticationServiceException e) {

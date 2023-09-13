@@ -1,5 +1,8 @@
 package org.awesomeboro.awesome_bro.auth;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 import org.awesomeboro.awesome_bro.common.BaseEntity;

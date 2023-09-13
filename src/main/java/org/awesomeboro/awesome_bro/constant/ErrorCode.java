@@ -21,7 +21,8 @@ public enum ErrorCode {
 	PASSWORD_LENGTH_ERROR(20004, ErrorCategory.SERVER_SIDE, "비밀번호는 8자 이상 15자 이하로 입력해주세요."),
 	UNDEFINED_EMAIL(20005, ErrorCategory.SERVER_SIDE, "가입되지 않은 이메일입니다."),
 	EMAIL_ALREADY_EXISTS(20006, ErrorCategory.SERVER_SIDE, "이미 가입된 이메일입니다."),
-	DELETED_USER(20007, ErrorCategory.SERVER_SIDE, "탈퇴한 회원입니다.");
+	DELETED_USER(20007, ErrorCategory.SERVER_SIDE, "탈퇴한 회원입니다."),
+	WRONG_JWT(2008, ErrorCategory.SERVER_SIDE, "잘못된 토큰입니다.");
 
 
 

@@ -3,11 +3,11 @@ package org.awesomeboro.awesome_bro.user;
 import static org.awesomeboro.awesome_bro.controller.ApiResponse.createSuccess;
 
 import lombok.RequiredArgsConstructor;
-import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.controller.ApiResponse;
 import org.awesomeboro.awesome_bro.dto.user.*;
-import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,24 +31,27 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-//    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public ApiResponse<TokenDto> login(@RequestBody UserDto user) {
         return createSuccess(userService.login(user));
     }
 
     // 사용자 조회
     @GetMapping("/{id}")
-    public ApiResponse<User> getUser(@PathVariable Long id) {
-        User user = userService.findUser(id);
-        if (user == null) {
-            throw new UserNotFoundException(ErrorCode.UNDEFINED_EMAIL);
-        }
+//    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ApiResponse<UserInfoDto> getUser(@PathVariable Long id) {
+        UserInfoDto user = userService.findUser(id);
         return createSuccess(user);
+    }
+
+    @GetMapping()
+//    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<User> getUserInfo(@RequestParam String name) {
+        System.out.println(name);
+        return ResponseEntity.ok(userService.getUserWithAuthorities(name).get());
     }
 
     @PostMapping("/social")
     public ApiResponse<TokenDto> socialLoginAndSignUp(@RequestBody UserDto user) {
-//        return createSuccess(userService.socialLogin(user).getId());
             return createSuccess(userService.socialLogin(user));
     }
 

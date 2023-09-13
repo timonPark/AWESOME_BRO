@@ -1,6 +1,9 @@
 package org.awesomeboro.awesome_bro.user;
 
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -43,7 +46,7 @@ public class User extends BaseEntity {
     @Column(length = 200,nullable = true)
     private String profilePicture;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<UserAuthority> userAuthorities = new ArrayList<>();
 
     public User socialLoginUserDtoConvertUser(UserDto userDto) {

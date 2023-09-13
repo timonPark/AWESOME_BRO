@@ -2,12 +2,10 @@ package org.awesomeboro.awesome_bro.auth;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 import org.awesomeboro.awesome_bro.user.User;
 import org.awesomeboro.awesome_bro.user.UserRepository;
 import org.awesomeboro.awesome_bro.user.UserService;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,6 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String userEmail) {
        org.springframework.security.core.userdetails.User validatedUser = userRepository.findByEmail(userEmail).map(this::checkUserAuth)
                .orElseThrow(() -> new UserNotFoundException(UNDEFINED_EMAIL));
+        System.out.println(validatedUser.getAuthorities());
        Optional<User> user = userService.getUserWithAuthorities(userEmail);
         if (user.isPresent() && "n".equals(user.get().getUseYn())) {
             throw new UserNotFoundException(DELETED_USER);

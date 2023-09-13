@@ -1,5 +1,6 @@
 package org.awesomeboro.awesome_bro.controller.error;
 
+import io.jsonwebtoken.MalformedJwtException;
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.dto.ApiErrorResponse;
 import org.awesomeboro.awesome_bro.exception.GeneralException;
@@ -24,6 +25,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		HttpStatus status = errorCode.isClientSideError() ?
 				HttpStatus.BAD_REQUEST :
 				HttpStatus.INTERNAL_SERVER_ERROR;
+		System.out.println("이엑스:"+e+"바디:"+e.getMessage()+"헤더:"+HttpHeaders.EMPTY+"스테이터스코드:"+status+"리퀘스트:"+request);
 		return super.handleExceptionInternal(
 				e,
 				ApiErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage(e)),
@@ -49,6 +51,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	@Override
 	protected ResponseEntity<Object> handleExceptionInternal(final Exception ex, final Object body, final HttpHeaders headers, final HttpStatusCode statusCode,
 			final WebRequest request) {
+		System.out.println("이엑스:"+ex+"바디:"+body+"헤더:"+headers+"스테이터스코드:"+statusCode+"리퀘스트:"+request);
 		ErrorCode errorCode = statusCode.is4xxClientError() ?
 				ErrorCode.SPRING_BAD_REQUST :
 				ErrorCode.SPRING_INTERNAL_ERROR;
@@ -86,6 +89,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 				request
 		);
 	}
+
 
 
 

@@ -3,6 +3,8 @@ package org.awesomeboro.awesome_bro.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.awesomeboro.awesome_bro.constant.ErrorCode;
+import org.awesomeboro.awesome_bro.exception.GeneralException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -19,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
+
+import static org.awesomeboro.awesome_bro.constant.ErrorCode.WRONG_JWT;
 
 @Component
 public class TokenProvider implements InitializingBean {
@@ -64,7 +68,7 @@ public class TokenProvider implements InitializingBean {
         // 토큰의 expire 시간을 설정
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
-
+        System.out.println("토큰정보권한:"+authorities);
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities) // 정보 저장
@@ -97,8 +101,8 @@ public class TokenProvider implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-
             logger.info("잘못된 JWT 서명입니다.");
+            throw new GeneralException(e);
         } catch (ExpiredJwtException e) {
 
             logger.info("만료된 JWT 토큰입니다.");

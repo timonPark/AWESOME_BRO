@@ -3,6 +3,7 @@ package org.awesomeboro.awesome_bro.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -12,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -41,12 +43,9 @@ public class SecurityConfig {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-                .and()
-                .authorizeHttpRequests() // HttpServletRequest를 사용하는 요청들에 대한 접근제한을 설정하겠다.
-                .requestMatchers("/user/login").permitAll() // 로그인 api
-                .requestMatchers("/user").permitAll() // 회원가입 api
-                .requestMatchers("/user/social").permitAll()
-                .requestMatchers("/user/{id}").permitAll()
+                .and().authorizeHttpRequests() // HttpServletRequest를 사용하는 요청들에 대한 접근제한을 설정하겠다.
+                .requestMatchers("/user/login","/user","/user/social","/user/{name}").permitAll() // 로그인 api
+//                .requestMatchers("/user/{id}").hasAnyAuthority("ROLE_USER") // user로 시작하는 api는 USER 권한이 있어야 접근 가능
                 .anyRequest().authenticated() // 그 외 인증 없이 접근X
 
                 .and()

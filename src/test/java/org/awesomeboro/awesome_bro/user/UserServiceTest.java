@@ -12,7 +12,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -104,7 +103,7 @@ public class UserServiceTest {
         user.setLoginType("normal");
         User createdUser = userService.createUser(user);
         // when
-        User foundUser = userService.findUser(createdUser.getId());
+        UserInfoDto foundUser = userService.findUser(createdUser.getId());
         // then
         assertThat(foundUser.getName()).isEqualTo(user.getName());
         assertThat(foundUser.getNickname()).isEqualTo(user.getNickname());
