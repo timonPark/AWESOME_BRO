@@ -87,6 +87,4 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		);
 	}
 
-
-
 }

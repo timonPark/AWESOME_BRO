@@ -2,12 +2,10 @@ package org.awesomeboro.awesome_bro.auth;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 import org.awesomeboro.awesome_bro.user.User;
 import org.awesomeboro.awesome_bro.user.UserRepository;
 import org.awesomeboro.awesome_bro.user.UserService;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

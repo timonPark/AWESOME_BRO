@@ -12,7 +12,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -102,9 +101,9 @@ public class UserServiceTest {
         user.setEmail("rhksdud23000@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
         user.setLoginType("normal");
-        User createdUser = userService.createUser(user);
+        UserInfoDto createdUser = userService.createUser(user);
         // when
-        User foundUser = userService.findUser(createdUser.getId());
+        UserInfoDto foundUser = userService.findUser(createdUser.getId());
         // then
         assertThat(foundUser.getName()).isEqualTo(user.getName());
         assertThat(foundUser.getNickname()).isEqualTo(user.getNickname());
@@ -145,7 +144,7 @@ public class UserServiceTest {
         user.setEmail("rhksdud23000@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
         user.setLoginType("normal");
-        User createdUser = userService.createUser(user);
+        UserInfoDto createdUser = userService.createUser(user);
         // when
         // then
         assertThat(createdUser.getName()).isEqualTo(user.getName());
@@ -199,13 +198,12 @@ public class UserServiceTest {
         user.setEmail("rhksdud23000@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
         user.setLoginType("normal");
-        User createdUser = userService.createUser(user);
+        UserInfoDto createdUser = userService.createUser(user);
         // when
         userService.deleteUser(createdUser.getId());
 
         // when & then
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.login(user));
-        System.out.println(exception.getMessage()+exception.getErrorCode());
         Assertions.assertEquals(ErrorCode.DELETED_USER.getMessage(), exception.getMessage());
     }
 

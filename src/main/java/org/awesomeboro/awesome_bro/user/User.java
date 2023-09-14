@@ -1,6 +1,9 @@
 package org.awesomeboro.awesome_bro.user;
 
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -18,6 +21,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @NamedEntityGraph(name = "User.withUserAuthorities", attributeNodes = {
         @NamedAttributeNode("userAuthorities")
 })
@@ -43,7 +48,7 @@ public class User extends BaseEntity {
     @Column(length = 200,nullable = true)
     private String profilePicture;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<UserAuthority> userAuthorities = new ArrayList<>();
 
     public User socialLoginUserDtoConvertUser(UserDto userDto) {

@@ -21,7 +21,8 @@ public class UserAuthorityServiceImpl implements UserAuthorityService{
         );
     }
 
-    @Override public List<Authority> findByUserIdToAuthority(final Long userId) {
+    @Override
+    public List<Authority> findByUserIdToAuthority(final Long userId) {
         return
                 userAuthorityRepository.findOneWithUsersWithAuthoritiesByUserId(userId)
                         .stream()

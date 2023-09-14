@@ -3,10 +3,8 @@ package org.awesomeboro.awesome_bro.user;
 import static org.awesomeboro.awesome_bro.controller.ApiResponse.createSuccess;
 
 import lombok.RequiredArgsConstructor;
-import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.controller.ApiResponse;
 import org.awesomeboro.awesome_bro.dto.user.*;
-import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -21,9 +19,10 @@ public class UserController {
      * @param user
      * @return
      */
-    @PostMapping
-    public ApiResponse<User> createUser(@RequestBody UserDto user) {
-        return createSuccess(userService.createUser(user));
+    @PostMapping("/signUp")
+    public ApiResponse<UserInfoDto> createUser(@RequestBody UserDto user) {
+        UserInfoDto result = userService.createUser(user);
+        return createSuccess(result);
     }
 
     /**
@@ -31,24 +30,28 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-//    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public ApiResponse<TokenDto> login(@RequestBody UserDto user) {
         return createSuccess(userService.login(user));
     }
 
-    // 사용자 조회
+    /**
+     * 유저 정보 조회
+     * @param id
+     * @return
+     */
     @GetMapping("/{id}")
-    public ApiResponse<User> getUser(@PathVariable Long id) {
-        User user = userService.findUser(id);
-        if (user == null) {
-            throw new UserNotFoundException(ErrorCode.UNDEFINED_EMAIL);
-        }
+    public ApiResponse<UserInfoDto> getUser(@PathVariable Long id) {
+        UserInfoDto user = userService.findUser(id);
         return createSuccess(user);
     }
 
+    /**
+     * 소셜 로그인 및 회원가입
+     * @param user
+     * @return
+     */
     @PostMapping("/social")
     public ApiResponse<TokenDto> socialLoginAndSignUp(@RequestBody UserDto user) {
-//        return createSuccess(userService.socialLogin(user).getId());
             return createSuccess(userService.socialLogin(user));
     }
 
