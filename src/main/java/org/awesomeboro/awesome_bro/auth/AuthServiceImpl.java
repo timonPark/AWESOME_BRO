@@ -44,7 +44,6 @@ public class AuthServiceImpl implements AuthService{
         }catch (BadCredentialsException e){
             throw  new PasswordException(ErrorCode.WRONG_PASSWORD);
         }catch (InternalAuthenticationServiceException e) {
-            System.out.println(e.getMessage()+e.getCause());
             if(e.getCause() instanceof RuntimeException){
                 throw (RuntimeException) e.getCause();
             }

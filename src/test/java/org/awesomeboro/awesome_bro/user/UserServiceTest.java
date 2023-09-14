@@ -101,7 +101,7 @@ public class UserServiceTest {
         user.setEmail("rhksdud23000@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
         user.setLoginType("normal");
-        User createdUser = userService.createUser(user);
+        UserInfoDto createdUser = userService.createUser(user);
         // when
         UserInfoDto foundUser = userService.findUser(createdUser.getId());
         // then
@@ -144,7 +144,7 @@ public class UserServiceTest {
         user.setEmail("rhksdud23000@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
         user.setLoginType("normal");
-        User createdUser = userService.createUser(user);
+        UserInfoDto createdUser = userService.createUser(user);
         // when
         // then
         assertThat(createdUser.getName()).isEqualTo(user.getName());
@@ -198,13 +198,12 @@ public class UserServiceTest {
         user.setEmail("rhksdud23000@marketboro.com");
         user.setPhoneNumber("010-1234-1234");
         user.setLoginType("normal");
-        User createdUser = userService.createUser(user);
+        UserInfoDto createdUser = userService.createUser(user);
         // when
         userService.deleteUser(createdUser.getId());
 
         // when & then
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> userService.login(user));
-        System.out.println(exception.getMessage()+exception.getErrorCode());
         Assertions.assertEquals(ErrorCode.DELETED_USER.getMessage(), exception.getMessage());
     }
 

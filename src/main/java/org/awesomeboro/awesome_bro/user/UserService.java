@@ -5,7 +5,7 @@ import org.awesomeboro.awesome_bro.dto.user.*;
 import java.util.Optional;
 
 public interface UserService {
-    User createUser(UserDto user);
+    UserInfoDto createUser(UserDto user);
     UserInfoDto findUser(Long id);
     TokenDto login(UserDto user);
     Optional<User> getMyUserWithAuthorities();

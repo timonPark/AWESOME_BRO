@@ -35,7 +35,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String userEmail) {
        org.springframework.security.core.userdetails.User validatedUser = userRepository.findByEmail(userEmail).map(this::checkUserAuth)
                .orElseThrow(() -> new UserNotFoundException(UNDEFINED_EMAIL));
-        System.out.println(validatedUser.getAuthorities());
        Optional<User> user = userService.getUserWithAuthorities(userEmail);
         if (user.isPresent() && "n".equals(user.get().getUseYn())) {
             throw new UserNotFoundException(DELETED_USER);

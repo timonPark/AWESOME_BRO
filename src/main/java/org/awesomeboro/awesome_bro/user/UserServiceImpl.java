@@ -1,15 +1,11 @@
 package org.awesomeboro.awesome_bro.user;
 
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.auth.AuthService;
 import org.awesomeboro.awesome_bro.dto.user.*;
 import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
-import org.awesomeboro.awesome_bro.userAuthority.UserAuthorityService;
+import org.awesomeboro.awesome_bro.userAuthority.UserAuthority;
 import org.awesomeboro.awesome_bro.utils.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,8 +21,6 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
     private final UserCommonService userCommonService;
-    private final EntityManager entityManager;
-    private final UserAuthorityService userAuthorityService;
 
     /**
      * 회원가입
@@ -35,7 +29,7 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     @Transactional
-    public User createUser(UserDto user){
+    public UserInfoDto createUser(UserDto user){
         // 이메일 및 비밀번호 검증
         signUpValidate(user);
         // 가입 안되어 있으면 진행
@@ -50,8 +44,11 @@ public class UserServiceImpl implements UserService{
                 .socialId(user.getSocialId())
                 .profilePicture(user.getProfilePicture())
                 .build();
-
-        return userCommonService.createUserAuthorityToMapping(userRepository.save(userInfo)).getUser();
+        userInfo = userRepository.save(userInfo);
+        // 4. 유저 권한 매핑
+        userCommonService.createUserAuthorityToMapping(userInfo);
+        UserInfoDto result = convertToUserInfoDto(userInfo);
+        return result;
     }
 
     /**
@@ -70,7 +67,6 @@ public class UserServiceImpl implements UserService{
 
     /**
      * 유저 탈퇴
-     *
      * @param id
      */
     public Long deleteUser(long id){
@@ -85,9 +81,7 @@ public class UserServiceImpl implements UserService{
     // 유저,권한 정보를 가져오는 메소드
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities(String name) {
-        Optional<User> user = userRepository.findByEmail(name);
-        System.out.println(user);
-        return user;
+        return userRepository.findByEmail(name);
     }
 
     // 현재 securityContext에 저장된 username의 정보만 가져오는 메소드
@@ -111,6 +105,7 @@ public class UserServiceImpl implements UserService{
         userInfoDto.setNickname(user.getNickname());
         userInfoDto.setPhoneNumber(user.getPhoneNumber());
         userInfoDto.setProfilePicture(user.getProfilePicture());
+        userInfoDto.setLoginType(user.getLoginType());
         return userInfoDto;
 
     }

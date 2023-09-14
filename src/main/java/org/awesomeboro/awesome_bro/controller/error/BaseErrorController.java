@@ -1,5 +1,7 @@
 package org.awesomeboro.awesome_bro.controller.error;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
@@ -19,7 +21,6 @@ public class BaseErrorController implements ErrorController {
 	public ModelAndView errorHtml(HttpServletResponse response) {
 		HttpStatus status = HttpStatus.valueOf(response.getStatus());
 		ErrorCode errorCode = status.is4xxClientError() ? ErrorCode.BAD_REQUEST : ErrorCode.INTERNAL_ERROR;
-		System.out.println("이엑스:"+response+"바디:"+response.getStatus()+"헤더:"+response.getHeaderNames()+"스테이터스코드:"+status+"리퀘스트:"+response.getContentType());
 		return new ModelAndView("error", Map.of(
 				"statusCode", status.value(),
 				"errorCode", errorCode,
@@ -29,14 +30,16 @@ public class BaseErrorController implements ErrorController {
 	}
 
 	@RequestMapping("/error")
-	public ResponseEntity<ApiErrorResponse> error(HttpServletResponse response) {
+	public ResponseEntity<ApiErrorResponse> error(HttpServletRequest request,HttpServletResponse response) {
 		HttpStatus status = HttpStatus.valueOf(response.getStatus());
+		String errorMessage = (String) request.getAttribute(RequestDispatcher.ERROR_MESSAGE);
+		// ErrorCode를 사용하여 ApiErrorResponse 객체 생성
 		ErrorCode errorCode = status.is4xxClientError() ? ErrorCode.BAD_REQUEST : ErrorCode.INTERNAL_ERROR;
-		System.out.println("이엑스:"+status+"바디:"+response.getStatus()+"헤더:"+response.getHeaderNames()+"스테이터스코드:"+status+"리퀘스트:"+response.getContentType());
-		return ResponseEntity
-				.status (status)
-				.body(ApiErrorResponse.of(false, errorCode));
-	}
 
+		// Custom error message를 사용하여 ApiErrorResponse 객체 생성
+		ApiErrorResponse apiErrorResponse = ApiErrorResponse.of(false, errorCode.getCode(), errorMessage);
+
+		return ResponseEntity.status(status).body(apiErrorResponse);
+	}
 
 }
