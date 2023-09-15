@@ -46,6 +46,17 @@ public class UserController {
     }
 
     /**
+     * 유저 정보 조회 - email
+     * @param email
+     * @return
+     */
+    @GetMapping("/email/{email}")
+    public ApiResponse<UserInfoDto> getUser(@PathVariable String email) {
+        UserInfoDto user = userService.findUser(email);
+        return createSuccess(user);
+    }
+
+    /**
      * 소셜 로그인 및 회원가입
      * @param user
      * @return
