@@ -7,6 +7,7 @@ import java.util.Optional;
 public interface UserService {
     UserInfoDto createUser(UserDto user);
     UserInfoDto findUser(Long id);
+    UserInfoDto findUser(String email);
     TokenDto login(UserDto user);
     Optional<User> getMyUserWithAuthorities();
 
