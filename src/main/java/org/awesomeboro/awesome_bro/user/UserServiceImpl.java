@@ -5,7 +5,6 @@ import org.awesomeboro.awesome_bro.auth.AuthService;
 import org.awesomeboro.awesome_bro.dto.user.*;
 import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
-import org.awesomeboro.awesome_bro.userAuthority.UserAuthority;
 import org.awesomeboro.awesome_bro.utils.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static org.awesomeboro.awesome_bro.constant.ErrorCode.*;
+import static org.awesomeboro.awesome_bro.constant.LoginType.NORMAL;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService{
                 .nickname(user.getNickname())
                 .password(passwordEncoder.encode(user.getPassword()))
                 .phoneNumber(user.getPhoneNumber())
-                .loginType(user.getLoginType())
+                .loginType(NORMAL.getName())
                 .socialId(user.getSocialId())
                 .profilePicture(user.getProfilePicture())
                 .build();
@@ -94,6 +94,11 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserInfoDto findUser(Long id){
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(UNDEFINED_EMAIL));
+        return convertToUserInfoDto(user);
+    }
+
+    @Override public UserInfoDto findUser(final String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(UNDEFINED_EMAIL));
         return convertToUserInfoDto(user);
     }
 
