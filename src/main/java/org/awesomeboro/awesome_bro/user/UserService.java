@@ -1,5 +1,6 @@
 package org.awesomeboro.awesome_bro.user;
 
+import org.awesomeboro.awesome_bro.controller.ApiResponse;
 import org.awesomeboro.awesome_bro.dto.user.*;
 
 import java.util.Optional;

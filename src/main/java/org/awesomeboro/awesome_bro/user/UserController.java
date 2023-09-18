@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.controller.ApiResponse;
 import org.awesomeboro.awesome_bro.dto.user.*;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,6 +45,28 @@ public class UserController {
         UserInfoDto user = userService.findUser(id);
         return createSuccess(user);
     }
+
+    /**
+     *
+     * @return
+     */
+
+    @PatchMapping(value = "/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ApiResponse<UserSignUpResponseDto> updateUser(@RequestBody UserSignUpDto user, @PathVariable String id) {
+        // 하드코딩된 더미 응답 생성
+        UserSignUpResponseDto dummyResponse = UserSignUpResponseDto.builder()
+                .id(Long.parseLong(id))
+                .name(user.getName())
+                .nickname(user.getNickname())
+                .phoneNumber(user.getPhoneNumber())
+                .email(user.getEmail())
+                .profilePicture(user.getProfilePicture())
+                .loginType(user.getLoginType())
+                .socialId(user.getSocialId())
+                .build();
+        return createSuccess(dummyResponse);
+    }
+
 
     /**
      * 소셜 로그인 및 회원가입
