@@ -3,6 +3,7 @@ package org.awesomeboro.awesome_bro.dto.user;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
@@ -10,7 +11,7 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor
 public class UserSignUpResponseDto {
     @NotNull
     @Size(min = 2, max = 50)
@@ -43,6 +44,19 @@ public class UserSignUpResponseDto {
     @Nullable
     @Size(min = 2, max = 50)
     private String profilePicture;
+
+    @Builder
+    public UserSignUpResponseDto(Long id, String name, String nickname, String phoneNumber, String email, String loginType, String socialId, String profilePicture) {
+        this.id = id;
+        this.name = name;
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.loginType = loginType;
+        this.socialId = socialId;
+        this.profilePicture = profilePicture;
+    }
+
 
 
 }

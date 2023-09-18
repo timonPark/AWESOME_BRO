@@ -46,16 +46,6 @@ public class UserController {
         return createSuccess(user);
     }
 
-    /**
-     * 유저 정보 조회 - email
-     * @param email
-     * @return
-     */
-    @GetMapping("/email/{email}")
-    public ApiResponse<UserInfoDto> getUser(@PathVariable String email) {
-        UserInfoDto user = userService.findUser(email);
-        return createSuccess(user);
-    }
 
     /**
      *

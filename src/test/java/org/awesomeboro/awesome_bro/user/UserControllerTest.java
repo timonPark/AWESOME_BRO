@@ -12,7 +12,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -59,7 +63,7 @@ class UserControllerTest {
                 .socialId("asfasf1qadsfdfasdf")
                 .build();
         // when
-        mvc.perform(patch("/user/{id}",userId)
+        MvcResult result = mvc.perform(patch("/user/{id}",userId)
                 .content(objectMapper.writeValueAsString(user)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -73,9 +77,21 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.data.email").value(user.getEmail()))
                 .andExpect(jsonPath("$.data.profilePicture").value(user.getProfilePicture()))
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value(IsNull.nullValue()));
+                .andExpect(jsonPath("$.message").value(IsNull.nullValue()))
+                .andReturn();
         // then
+        String responseBody = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ApiResponse apiResponse = objectMapper.readValue(responseBody, ApiResponse.class);
+        UserSignUpResponseDto returnedUser = objectMapper.convertValue(apiResponse.getData(), UserSignUpResponseDto.class);
 
+        assertEquals(user.getId(), returnedUser.getId());
+        assertEquals(user.getName(), returnedUser.getName());
+        assertEquals(user.getNickname(), returnedUser.getNickname());
+        assertEquals(user.getPhoneNumber(), returnedUser.getPhoneNumber());
+        assertEquals(user.getLoginType(), returnedUser.getLoginType());
+        assertEquals(user.getSocialId(), returnedUser.getSocialId());
+        assertEquals(user.getEmail(), returnedUser.getEmail());
+        assertEquals(user.getProfilePicture(), returnedUser.getProfilePicture());
 
     }
 
