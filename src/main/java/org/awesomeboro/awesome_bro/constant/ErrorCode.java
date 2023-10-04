@@ -22,7 +22,8 @@ public enum ErrorCode {
 	UNDEFINED_EMAIL(20005, ErrorCategory.SERVER_SIDE, "가입되지 않은 이메일입니다."),
 	EMAIL_ALREADY_EXISTS(20006, ErrorCategory.SERVER_SIDE, "이미 가입된 이메일입니다."),
 	DELETED_USER(20007, ErrorCategory.SERVER_SIDE, "탈퇴한 회원입니다."),
-	WRONG_JWT(20008, ErrorCategory.SERVER_SIDE, "잘못된 토큰입니다.");
+	WRONG_JWT(20008, ErrorCategory.SERVER_SIDE, "잘못된 토큰입니다."),
+	UNDEFINED_ID(20009,ErrorCategory.SERVER_SIDE, "id 값을 찾을 수 없습니다.");
 
 
 

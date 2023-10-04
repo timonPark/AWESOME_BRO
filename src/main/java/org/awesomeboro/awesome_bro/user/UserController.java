@@ -48,24 +48,13 @@ public class UserController {
 
 
     /**
-     *
      * @return
      */
 
     @PatchMapping(value = "/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<UserSignUpResponseDto> updateUser(@RequestBody UserSignUpDto user, @PathVariable String id) {
-        // 하드코딩된 더미 응답 생성
-        UserSignUpResponseDto dummyResponse = UserSignUpResponseDto.builder()
-                .id(Long.parseLong(id))
-                .name(user.getName())
-                .nickname(user.getNickname())
-                .phoneNumber(user.getPhoneNumber())
-                .email(user.getEmail())
-                .profilePicture(user.getProfilePicture())
-                .loginType(user.getLoginType())
-                .socialId(user.getSocialId())
-                .build();
-        return createSuccess(dummyResponse);
+    public User updateUser(@RequestBody UserSignUpDto user, @PathVariable Long id) {
+        return userService.updateUser(user,id);
+
     }
 
 
