@@ -10,9 +10,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -24,6 +32,9 @@ class UserControllerTest {
     private  MockMvc mvc;
     @Autowired
     private  ObjectMapper objectMapper;
+    @MockBean
+    private UserService userService;
+
 
 //    public UserControllerTest(@Autowired MockMvc mvc, @Autowired ObjectMapper objectMapper,  UserService userService) {
 //        this.mvc = mvc;
@@ -47,6 +58,7 @@ class UserControllerTest {
     @Test
     void updateUser() throws Exception {
         // given
+
         Long userId = 1L;
         UserSignUpResponseDto user = UserSignUpResponseDto.builder()
                 .id(userId)
@@ -58,8 +70,14 @@ class UserControllerTest {
                 .loginType("normal")
                 .socialId("asfasf1qadsfdfasdf")
                 .build();
+        when(userService.updateUser(any(UserSignUpDto.class), anyLong())).thenAnswer(ele-> {
+
+            return user;
+        });
+
+
         // when
-        mvc.perform(patch("/user/{id}",userId)
+        MvcResult result = mvc.perform(patch("/user/{id}",userId)
                 .content(objectMapper.writeValueAsString(user)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -73,9 +91,24 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.data.email").value(user.getEmail()))
                 .andExpect(jsonPath("$.data.profilePicture").value(user.getProfilePicture()))
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value(IsNull.nullValue()));
+                .andExpect(jsonPath("$.message").value(IsNull.nullValue()))
+                .andReturn();
         // then
+        /*
+        String responseBody = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ApiResponse apiResponse = objectMapper.readValue(responseBody, ApiResponse.class);
+        UserSignUpResponseDto returnedUser = objectMapper.convertValue(apiResponse.getData(), UserSignUpResponseDto.class);
 
+        assertEquals(user.getId(), returnedUser.getId());
+        assertEquals(user.getName(), returnedUser.getName());
+        assertEquals(user.getNickname(), returnedUser.getNickname());
+        assertEquals(user.getPhoneNumber(), returnedUser.getPhoneNumber());
+        assertEquals(user.getLoginType(), returnedUser.getLoginType());
+        assertEquals(user.getSocialId(), returnedUser.getSocialId());
+        assertEquals(user.getEmail(), returnedUser.getEmail());
+        assertEquals(user.getProfilePicture(), returnedUser.getProfilePicture());
+
+         */
 
     }
 

@@ -97,10 +97,14 @@ public class UserServiceImpl implements UserService{
         return convertToUserInfoDto(user);
     }
 
-    @Override public UserInfoDto findUser(final String email) {
+    @Override
+    public UserInfoDto findUser(final String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(UNDEFINED_EMAIL));
         return convertToUserInfoDto(user);
     }
+
+
+
 
     private UserInfoDto convertToUserInfoDto(User user){
         UserInfoDto userInfoDto = new UserInfoDto();
@@ -124,6 +128,19 @@ public class UserServiceImpl implements UserService{
 
     public TokenDto socialLogin(final UserDto user) {
         return socialLoginProgress(getSocialLoginUser(user), user);
+    }
+
+    @Override
+    public User updateUser(UserSignUpDto user, Long id) {
+        User userInfo = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(UNDEFINED_ID));
+        userInfo.setName(user.getName());
+        userInfo.setNickname(user.getNickname());
+        userInfo.setPhoneNumber(user.getPhoneNumber());
+        userInfo.setProfilePicture(user.getProfilePicture());
+        userRepository.save(userInfo);
+        return userInfo;
+
+
     }
 
     @Transactional
