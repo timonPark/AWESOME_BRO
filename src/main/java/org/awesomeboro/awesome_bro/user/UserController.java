@@ -9,6 +9,8 @@ import org.awesomeboro.awesome_bro.dto.user.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -21,52 +23,47 @@ public class UserController {
      * @return
      */
     @PostMapping("/signUp")
-    public ApiResponse<UserInfoDto> createUser(@RequestBody UserDto user) {
+    public ApiResponse<UserInfoDto> createUser(@RequestBody User user) {
         UserInfoDto result = userService.createUser(user);
         return createSuccess(result);
     }
 
     /**
-     * 로그인
+     * 일반 로그인
      * @return
      */
     @PostMapping("/login")
-    public ApiResponse<TokenDto> login(@RequestBody UserDto user) {
+    public ApiResponse<TokenDto> login(@RequestBody User user) {
         return createSuccess(userService.login(user));
     }
 
     /**
-     * 유저 정보 조회
+     * 유저 정보 조회 - id
      * @param id
      * @return
      */
     @GetMapping("/{id}")
     public ApiResponse<UserInfoDto> getUser(@PathVariable Long id) {
-        UserInfoDto user = userService.findUser(id);
-        return createSuccess(user);
+        return createSuccess(userService.findUser(id));
     }
 
+    /**
+     * 유저 목록
+     */
+    @GetMapping("/list")
+    public ApiResponse<List<UserInfoDto>> getUserList() {
+        return createSuccess(userService.findUserList());
+    }
 
     /**
+     * 유저 정보 수정
      * @return
      */
 
     @PatchMapping(value = "/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public User updateUser(@RequestBody UserSignUpDto user, @PathVariable Long id) {
-        return userService.updateUser(user,id);
+    public ApiResponse<UserInfoDto> updateUser(@RequestBody UserSignUpDto user, @PathVariable Long id) {
+        return createSuccess(userService.updateUser(user,id));
 
-    }
-
-
-    /**
-     * 유저 정보 조회 - email
-     * @param email
-     * @return
-     */
-    @GetMapping("/email/{email}")
-    public ApiResponse<UserInfoDto> getUser(@PathVariable String email) {
-        UserInfoDto user = userService.findUser(email);
-        return createSuccess(user);
     }
 
     /**
@@ -75,8 +72,18 @@ public class UserController {
      * @return
      */
     @PostMapping("/social")
-    public ApiResponse<TokenDto> socialLoginAndSignUp(@RequestBody UserDto user) {
+    public ApiResponse<TokenDto> socialLoginAndSignUp(@RequestBody User user) {
             return createSuccess(userService.socialLogin(user));
+    }
+
+    /**
+     * 유저 삭제
+     * @param id
+     * @return
+     */
+    @PatchMapping("/delete/{id}")
+    public ApiResponse<String> deleteUser(@PathVariable Long id) {
+        return createSuccess( userService.deleteUser(id));
     }
 
 }

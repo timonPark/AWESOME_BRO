@@ -14,8 +14,6 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Authority extends BaseEntity {

@@ -29,7 +29,7 @@ public class UserServiceTest {
     @DisplayName("회원가입 - 이미 존재하는 이메일로 회원가입 - 실패")
     public void createUserDuplicateEmail() {
         // given
-        UserDto user = new UserDto();
+        User user = new User();
         user.setName("박종훈");
         user.setNickname("roy");
         user.setPassword("12345678");
@@ -41,7 +41,7 @@ public class UserServiceTest {
 
 
         // 존재하는 이메일로 회원가입
-        UserDto user2 = new UserDto();
+        User user2 = new User();
         user2.setName("박종훈2");
         user2.setNickname("roy2");
         user2.setPassword("12345678");
@@ -60,7 +60,7 @@ public class UserServiceTest {
     @DisplayName("회원가입 - 비밀번호 자리수 8자리 이하 유효성 검사 - 실패")
     public void createUserPasswordLengthUnder8(){
         // given
-        UserDto user = new UserDto();
+        User user = new User();
         user.setName("이관영");
         user.setNickname("스프링king");
         user.setPassword("하나둘셋");
@@ -77,7 +77,7 @@ public class UserServiceTest {
     @DisplayName("회원가입 - 비밀번호 자리수 15자리 이상 유효성 검사 - 실패")
     public void createUserPasswordLengthOver15(){
         // given
-        UserDto user = new UserDto();
+        User user = new User();
         user.setName("이관영");
         user.setNickname("스프링king");
         user.setPassword("하나둘셋다섯여섯일곱여덟아홉열열하나열둘열셋");
@@ -94,7 +94,7 @@ public class UserServiceTest {
     @DisplayName("회원가입 - 성공")
     public void createUserSuccess(){
         // given
-        UserDto user = new UserDto();
+        User user = new User();
         user.setName("이관영");
         user.setNickname("스프링king");
         user.setPassword("마켓보로마켓보로");
@@ -137,7 +137,7 @@ public class UserServiceTest {
     @DisplayName("로그인 - 성공")
     void loginSuccess() {
         // given
-        UserDto user = new UserDto();
+        User user = new User();
         user.setName("이관영");
         user.setNickname("스프링king");
         user.setPassword("마켓보로마켓보로");
@@ -166,7 +166,7 @@ public class UserServiceTest {
     @DisplayName("로그인 - 잘못된 비밀번호 로그인 시도 - 실패")
     void loginFailWrongPassword() {
         // given
-        UserDto user = new UserDto();
+        User user = new User();
         user.setName("이관영");
         user.setNickname("스프링king");
         user.setPassword("마켓보로마켓보로");
@@ -176,7 +176,7 @@ public class UserServiceTest {
         userService.createUser(user);
 
         // 잘못된 비밀번호로 로그인 시도
-        UserDto loginUser = new UserDto();
+        User loginUser = new User();
         loginUser.setEmail("rhksdud23000@marketboro.com");
         loginUser.setPassword("잘못된패스워드");
         // when
@@ -191,7 +191,7 @@ public class UserServiceTest {
     @DisplayName("로그인 - 탈퇴한 회원 유효성 검사 - 실패")
     void loginFailWithdrawUser() {
         // given
-        UserDto user = new UserDto();
+        User user = new User();
         user.setName("이관영");
         user.setNickname("스프링king");
         user.setPassword("마켓보로마켓보로");
@@ -212,7 +212,7 @@ public class UserServiceTest {
     @DisplayName("로그인 - 존재하지 않는 회원 유효성 검사 - 실패")
     void loginFailUndefinedUser() {
         // given
-        UserDto user = new UserDto();
+        User user = new User();
         user.setName("이관영");
         user.setNickname("스프링king");
         user.setPassword("마켓보로마켓보로");
@@ -222,7 +222,7 @@ public class UserServiceTest {
         userService.createUser(user);
 
         // 잘못된 비밀번호로 로그인 시도
-        UserDto loginUser = new UserDto();
+        User loginUser = new User();
         loginUser.setEmail("market@marketboro.com");
         loginUser.setPassword("마켓보로마켓보로");
         // when
@@ -238,7 +238,7 @@ public class UserServiceTest {
     @DisplayName("소셜아이디와 로그인타입으로 검색후 존재시 유저객체 반환")
     void getSocialLoginUserTestSuccess(){
         // given
-        UserDto socialLoginUser = new UserDto();
+        User socialLoginUser = new User();
         socialLoginUser.setName("손흥민");
         socialLoginUser.setNickname("CaptainSon");
         socialLoginUser.setEmail("SonCaptain7@tottenham.com");
@@ -246,7 +246,7 @@ public class UserServiceTest {
         socialLoginUser.setSocialId("5007848651");
         socialLoginUser.setProfilePicture("http://k.kakaocdn.net/dn/A1d2E/btsqZyraOkC/J8jJh8kXdC6NuPGNykDtKk/img_640x640.jpg");
 
-        UserDto user2 = new UserDto();
+        User user2 = new User();
         user2.setName("손흥민");
         user2.setNickname("CaptainSon");
         user2.setEmail("SonCaptain7@tottenham.com");
@@ -272,7 +272,7 @@ public class UserServiceTest {
     @DisplayName("소셜아이디와 로그인타입으로 검색후 없을 때 Null 반환")
     void getSocialLoginUserTestFail(){
         // given
-        UserDto socialLoginUser = new UserDto();
+        User socialLoginUser = new User();
         socialLoginUser.setName("케인");
         socialLoginUser.setNickname("kain");
         socialLoginUser.setEmail("kain@tottenham.com");
@@ -289,10 +289,10 @@ public class UserServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("SocialLoginUserDto로 소셜로그인시 유저객체로 반환 성공")
+    @DisplayName("SocialLoginUser로 소셜로그인시 유저객체로 반환 성공")
     void socialLoginTestSuccess(){
         // given
-        UserDto socialLoginUser = new UserDto();
+        User socialLoginUser = new User();
         socialLoginUser.setName("케인");
         socialLoginUser.setNickname("kain");
         socialLoginUser.setEmail("kain@tottenham.com");
@@ -314,7 +314,7 @@ public class UserServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("SocialLoginUserDto로 소셜로그인시 유저객체로 반환 실패 - 유효성검증")
+    @DisplayName("SocialLoginUser로 소셜로그인시 유저객체로 반환 실패 - 유효성검증")
     void socialLoginTestFail(){
         // given
         SocialLoginUserDto socialLoginUser = new SocialLoginUserDto();
