@@ -66,7 +66,6 @@ public class UserServiceImpl implements UserService{
     public String deleteUser(Long id){
         User user = userRepository.findById(id).orElseThrow();
         user.deactivate();
-        userRepository.save(user);
         return "ok";
     }
 
@@ -130,7 +129,7 @@ public class UserServiceImpl implements UserService{
     public UserInfoDto updateUser(UserSignUpDto user, Long id) {
         User userInfo = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(UNDEFINED_ID));
         userInfo.updateUserInfo(user);
-        userRepository.save(userInfo);
+//        userRepository.save(userInfo);
         return convertToUserInfoDto(userInfo);
 
 
