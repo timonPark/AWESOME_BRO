@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    UserInfoDto createUser(User user);
+    UserInfoDto createUser(UserSignUpRequestDto user);
     UserInfoDto findUser(Long id);
-    TokenDto login(User user);
+    TokenDto login(UserLoginDto user);
     Optional<User> getUserWithAuthorities(String email);
-    TokenDto socialLogin(final User user);
-    UserInfoDto updateUser(UserSignUpDto user, Long id);
+    TokenDto socialLogin(final UserLoginDto user);
+    UserInfoDto updateUser(UserInfoDto user, Long id);
     String deleteUser(Long id);
     List<UserInfoDto> findUserList();
 }

@@ -1,19 +1,32 @@
 package org.awesomeboro.awesome_bro.dto.user;
+import lombok.*;
+import org.awesomeboro.awesome_bro.user.User;
 
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserInfoDto {
     private Long id;
     private String name;
-    private String email;
     private String nickname;
-    private String loginType;
     private String phoneNumber;
+    private String email;
+    private String loginType;
     private String socialId;
     private String profilePicture;
 
 
+    public static UserInfoDto convertToUserInfoDto(User user){
+        return UserInfoDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .phoneNumber(user.getPhoneNumber())
+                .profilePicture(user.getProfilePicture())
+                .loginType(user.getLoginType())
+                .build();
+    }
 }

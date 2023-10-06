@@ -3,10 +3,10 @@ package org.awesomeboro.awesome_bro.auth;
 import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.dto.user.TokenDto;
+import org.awesomeboro.awesome_bro.dto.user.UserLoginDto;
 import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.security.JwtFilter;
 import org.awesomeboro.awesome_bro.security.TokenProvider;
-import org.awesomeboro.awesome_bro.user.User;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService{
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public TokenDto getToken(User user){
+    public TokenDto getToken(UserLoginDto user){
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());

@@ -2,7 +2,9 @@ package org.awesomeboro.awesome_bro.user;
 
 import static org.awesomeboro.awesome_bro.controller.ApiResponse.createSuccess;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.awesomeboro.awesome_bro.controller.ApiResponse;
 import org.awesomeboro.awesome_bro.dto.user.*;
 
@@ -14,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
 
@@ -23,7 +26,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/signUp")
-    public ApiResponse<UserInfoDto> createUser(@RequestBody User user) {
+    public ApiResponse<UserInfoDto> createUser(@Valid @RequestBody UserSignUpRequestDto user) {
         UserInfoDto result = userService.createUser(user);
         return createSuccess(result);
     }
@@ -33,7 +36,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public ApiResponse<TokenDto> login(@RequestBody User user) {
+    public ApiResponse<TokenDto> login(@RequestBody UserLoginDto user) {
         return createSuccess(userService.login(user));
     }
 
@@ -61,7 +64,7 @@ public class UserController {
      */
 
     @PatchMapping(value = "/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<UserInfoDto> updateUser(@RequestBody UserSignUpDto user, @PathVariable Long id) {
+    public ApiResponse<UserInfoDto> updateUser(@RequestBody UserInfoDto user, @PathVariable Long id) {
         return createSuccess(userService.updateUser(user,id));
 
     }
@@ -72,7 +75,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/social")
-    public ApiResponse<TokenDto> socialLoginAndSignUp(@RequestBody User user) {
+    public ApiResponse<TokenDto> socialLoginAndSignUp(@RequestBody @Valid UserLoginDto user) {
             return createSuccess(userService.socialLogin(user));
     }
 

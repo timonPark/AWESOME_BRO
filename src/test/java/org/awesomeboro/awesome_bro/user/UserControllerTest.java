@@ -1,9 +1,8 @@
 package org.awesomeboro.awesome_bro.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.awesomeboro.awesome_bro.controller.ApiResponse;
-import org.awesomeboro.awesome_bro.dto.user.UserSignUpDto;
-import org.awesomeboro.awesome_bro.dto.user.UserSignUpResponseDto;
+import org.awesomeboro.awesome_bro.dto.user.UserSignUpRequestDto;
+import org.awesomeboro.awesome_bro.dto.user.UserInfoDto;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,8 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,7 +57,7 @@ class UserControllerTest {
         // given
 
         Long userId = 1L;
-        UserSignUpResponseDto user = UserSignUpResponseDto.builder()
+        UserInfoDto user = UserInfoDto.builder()
                 .id(userId)
                 .name("이관영")
                 .nickname("이관영님")
@@ -70,7 +67,7 @@ class UserControllerTest {
                 .loginType("normal")
                 .socialId("asfasf1qadsfdfasdf")
                 .build();
-        when(userService.updateUser(any(UserSignUpDto.class), anyLong())).thenAnswer(ele-> {
+        when(userService.updateUser(any(UserInfoDto.class), anyLong())).thenAnswer(ele-> {
 
             return user;
         });

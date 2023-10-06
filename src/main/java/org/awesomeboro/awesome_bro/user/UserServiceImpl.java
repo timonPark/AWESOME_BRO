@@ -31,16 +31,19 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     @Transactional
-    public UserInfoDto createUser(User userInfo){
+    public UserInfoDto createUser(UserSignUpRequestDto userInfo){
         // 1.이메일 및 비밀번호 검증
         signUpValidate(userInfo);
         // 비밀번호 암호화 추가
         userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
         // 2. 유저 정보 만들기
-        User saveUser =userRepository.save(userInfo);
+        User saveUser = new User();
+        saveUser.updateFromDto(userInfo);
+        userRepository.save(saveUser);
+
         // 3. 유저권한 매핑
         UserAuthority.createUserAuthority(saveUser,authorityService.findById(3L).orElseThrow());
-        return convertToUserInfoDto(saveUser);
+        return UserInfoDto.convertToUserInfoDto(saveUser);
     }
 
     /**
@@ -49,7 +52,7 @@ public class UserServiceImpl implements UserService{
      * @return
      */
 
-    public TokenDto login(User user){
+    public TokenDto login(UserLoginDto user){
         // 1. 이메일, 비밀번호가 없으면 에러 처리
         if(user.getEmail().length() < 1 || user.getPassword().length() < 1){
             throw new RuntimeException("이메일과 비밀번호를 입력해주세요.");
@@ -77,7 +80,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserInfoDto findUser(Long id){
         User user = userRepository.findByIdAndUseYn(id,"y").orElseThrow(() -> new UserNotFoundException(UNDEFINED_EMAIL));
-        return convertToUserInfoDto(user);
+        return UserInfoDto.convertToUserInfoDto(user);
     }
 
     /**
@@ -86,7 +89,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<UserInfoDto> findUserList(){
         List<User> userList = userRepository.findAllByUseYn("y");
-        return userList.stream().map(this::convertToUserInfoDto).toList();
+        return userList.stream().map(UserInfoDto::convertToUserInfoDto).toList();
     }
 
     /**
@@ -96,15 +99,18 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     @Transactional
-    public TokenDto socialLogin(final User user) {
+    public TokenDto socialLogin(final UserLoginDto user) {
         User socialLoginUser;
+        User saveUser = new User();
+        saveUser.updateFromDto(user);
         try {
             User socialUser = userRepository
                     .findBySocialIdAndLoginType(user.getSocialId(), user.getLoginType())
                     .stream()
                     .findFirst().orElse(null);
             if (socialUser == null) {
-                socialLoginUser = userRepository.save(user);
+                socialLoginUser = userRepository.save(saveUser);
+                UserAuthority.createUserAuthority(socialLoginUser,authorityService.findById(3L).orElseThrow());
             } else {
                 socialLoginUser = socialUser;
             }
@@ -112,8 +118,7 @@ public class UserServiceImpl implements UserService{
             throw new RuntimeException("소셜 로그인 실패");
         }
 
-        UserAuthority.createUserAuthority(socialLoginUser,authorityService.findById(3L).orElseThrow());
-        User userLoginInfo = new User();
+        UserLoginDto userLoginInfo = new UserLoginDto();
         userLoginInfo.getTokenFromSocial(socialLoginUser);
         return authService.getToken(userLoginInfo);
     }
@@ -126,16 +131,16 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     @Transactional
-    public UserInfoDto updateUser(UserSignUpDto user, Long id) {
+    public UserInfoDto updateUser(UserInfoDto user, Long id) {
         User userInfo = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(UNDEFINED_ID));
         userInfo.updateUserInfo(user);
 //        userRepository.save(userInfo);
-        return convertToUserInfoDto(userInfo);
+        return UserInfoDto.convertToUserInfoDto(userInfo);
 
 
     }
 
-    private void signUpValidate(User user){
+    private void signUpValidate(UserSignUpRequestDto user){
         Optional<User> existUserCheck = userRepository.findByEmail(user.getEmail());
         // 1. 이메일 이미 존재하면 에러 처리
         if(existUserCheck.isPresent()){
@@ -154,18 +159,7 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-    private UserInfoDto convertToUserInfoDto(User user){
-        UserInfoDto userInfoDto = new UserInfoDto();
-        userInfoDto.setId(user.getId());
-        userInfoDto.setName(user.getName());
-        userInfoDto.setEmail(user.getEmail());
-        userInfoDto.setNickname(user.getNickname());
-        userInfoDto.setPhoneNumber(user.getPhoneNumber());
-        userInfoDto.setProfilePicture(user.getProfilePicture());
-        userInfoDto.setLoginType(user.getLoginType());
-        return userInfoDto;
 
-    }
 
     /**
      * 유저 권한 정보 메서드
