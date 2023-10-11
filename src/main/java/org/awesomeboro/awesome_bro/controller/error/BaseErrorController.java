@@ -1,5 +1,7 @@
 package org.awesomeboro.awesome_bro.controller.error;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
@@ -28,13 +30,16 @@ public class BaseErrorController implements ErrorController {
 	}
 
 	@RequestMapping("/error")
-	public ResponseEntity<ApiErrorResponse> error(HttpServletResponse response) {
+	public ResponseEntity<ApiErrorResponse> error(HttpServletRequest request,HttpServletResponse response) {
 		HttpStatus status = HttpStatus.valueOf(response.getStatus());
+		String errorMessage = (String) request.getAttribute(RequestDispatcher.ERROR_MESSAGE);
+		// ErrorCode를 사용하여 ApiErrorResponse 객체 생성
 		ErrorCode errorCode = status.is4xxClientError() ? ErrorCode.BAD_REQUEST : ErrorCode.INTERNAL_ERROR;
-		return ResponseEntity
-				.status (status)
-				.body(ApiErrorResponse.of(false, errorCode));
-	}
 
+		// Custom error message를 사용하여 ApiErrorResponse 객체 생성
+		ApiErrorResponse apiErrorResponse = ApiErrorResponse.of(false, errorCode.getCode(), errorMessage);
+
+		return ResponseEntity.status(status).body(apiErrorResponse);
+	}
 
 }

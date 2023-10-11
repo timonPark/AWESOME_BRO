@@ -1,90 +1,169 @@
 package org.awesomeboro.awesome_bro.user;
 
 import lombok.RequiredArgsConstructor;
-import org.awesomeboro.awesome_bro.dto.user.SocialLoginUserDto;
-import org.awesomeboro.awesome_bro.auth.AuthRepository;
-import org.awesomeboro.awesome_bro.auth.Authority;
+import org.awesomeboro.awesome_bro.auth.AuthService;
+import org.awesomeboro.awesome_bro.dto.user.*;
+import org.awesomeboro.awesome_bro.exception.PasswordException;
+import org.awesomeboro.awesome_bro.exception.UserNotFoundException;
+import org.awesomeboro.awesome_bro.userAuthority.UserAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+
+import static org.awesomeboro.awesome_bro.constant.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService{
-    private final AuthRepository authRepository;
     private final UserRepository userRepository;
+    private final AuthService authService;
+    private final AuthService authorityService;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * 회원가입
+     * @param userInfo
+     * @return
+     */
     @Override
     @Transactional
-    public User signUp(User user){
-        if(userRepository.findByEmail(user.getEmail()).isPresent()){
-            throw new RuntimeException("이미 가입되어 있는 유저입니다.");
-        }
-        // 가입 안되어 있으면 진행
-        // 1.권한정보 만들기
-//        Authority authority = Authority.builder()
-//                .authorityName("ROLE_USER")
-//                .build();
-        Authority authority = authRepository.findByAuthorityName("ROLE_USER")
-                .orElseGet(() -> {
-                    Authority newAuthority = Authority.builder().authorityName("ROLE_USER").build();
-                    return authRepository.save(newAuthority);
-                });
+    public UserInfoDto createUser(UserSignUpRequestDto userInfo){
+        // 1.이메일 및 비밀번호 검증
+        signUpValidate(userInfo);
+        // 비밀번호 암호화 추가
+        userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
         // 2. 유저 정보 만들기
-        User userInfo = User.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .password(passwordEncoder.encode(user.getPassword()))
-                .phoneNumber(user.getPhoneNumber())
-                .loginType(user.getLoginType())
-                .socialId(user.getSocialId())
-                .profilePicture(user.getProfilePicture())
-                .authorities(Collections.singleton(authority))
-                .useYn("y")
-                .build();
+        User saveUser = new User();
+        saveUser.updateFromDto(userInfo);
+        userRepository.save(saveUser);
 
-        return userRepository.save(userInfo);
-    }
-    // 유저,권한 정보를 가져오는 메소드
-    @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthorities(String email) {
-        return userRepository.findOneWithAuthoritiesByEmail(email);
+        // 3. 유저권한 매핑
+        UserAuthority.createUserAuthority(saveUser,authorityService.findById(3L).orElseThrow());
+        return UserInfoDto.convertToUserInfoDto(saveUser);
     }
 
-    // 현재 securityContext에 저장된 username의 정보만 가져오는 메소드
-    @Transactional(readOnly = true)
-    public Optional<User> getMyUserWithAuthorities() {
-        return SecurityUtil.getCurrentUsername()
-                .flatMap(userRepository::findOneWithAuthoritiesByEmail);
+    /**
+     * 로그인
+     * @param user
+     * @return
+     */
+
+    public TokenDto login(UserLoginDto user){
+        // 1. 이메일, 비밀번호가 없으면 에러 처리
+        if(user.getEmail().length() < 1 || user.getPassword().length() < 1){
+            throw new RuntimeException("이메일과 비밀번호를 입력해주세요.");
+        }
+        return authService.getToken(user);
     }
 
-    @Override
-    public User findUser(Long id){
-        return userRepository.findById(id).orElseThrow();
-    }
-
+    /**
+     * 유저 탈퇴
+     * @param id
+     */
     @Override
     @Transactional
-    public User socialLogin(final SocialLoginUserDto user) {
-        return socialLoginProgress(getSocialLoginUser(user), user);
+    public String deleteUser(Long id){
+        User user = userRepository.findById(id).orElseThrow();
+        user.softDelete();
+        return "ok";
     }
 
-    private User socialLoginProgress(final User user, SocialLoginUserDto socialLoginUserDto) {
-        return user == null ?
-            userRepository.save(new User().socialLoginUserDtoConvertUser(socialLoginUserDto)) :
-            user;
+    /**
+     * 유저 조회
+     * @param id
+     * @return
+     */
+    @Override
+    public UserInfoDto findUser(Long id){
+        User user = userRepository.findByIdAndUseYn(id,"y").orElseThrow(() -> new UserNotFoundException(UNDEFINED_EMAIL));
+        return UserInfoDto.convertToUserInfoDto(user);
     }
 
-    public User getSocialLoginUser(final  SocialLoginUserDto user) {
-        return userRepository
-            .findBySocialIdAndLoginType(user.getSocialId(), user.getLoginType())
-            .stream()
-            .findFirst().orElse(null);
+    /**
+     * 유저 목록
+     */
+    @Override
+    public List<UserInfoDto> findUserList(){
+        List<User> userList = userRepository.findAllByUseYn("y");
+        return userList.stream().map(UserInfoDto::convertToUserInfoDto).toList();
     }
+
+    /**
+     * 소셜 로그인
+     * @param user
+     * @return
+     */
+    @Override
+    @Transactional
+    public TokenDto socialLogin(final UserLoginDto user) {
+        User saveUser = new User();
+        saveUser.updateFromDto(user);
+        User socialLoginUser = checkForSocialLogin(user,saveUser);
+        UserLoginDto userLoginInfo = new UserLoginDto();
+        userLoginInfo.getTokenFromSocial(socialLoginUser);
+        return authService.getToken(userLoginInfo);
+    }
+
+    /**
+     * 유저 정보 수정
+     * @param user
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional
+    public UserInfoDto updateUser(UserInfoDto user, Long id) {
+        User userInfo = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(UNDEFINED_ID));
+        userInfo.updateUserInfo(user);
+        return UserInfoDto.convertToUserInfoDto(userInfo);
+
+
+    }
+
+    private void signUpValidate(UserSignUpRequestDto user){
+        Optional<User> existUserCheck = userRepository.findByEmail(user.getEmail());
+        // 1. 이메일 이미 존재하면 에러 처리
+        if(existUserCheck.isPresent()){
+            throw new UserNotFoundException(EMAIL_ALREADY_EXISTS);
+        }
+        // 2. 비밀번호 자리수 8자리 이하 에러 처리
+        if(user.getPassword().length() < 8 || user.getPassword().length() > 15){
+            throw new PasswordException(PASSWORD_LENGTH_ERROR);
+        }
+    }
+
+    private User checkForSocialLogin(UserLoginDto user,User saveUser){
+        try {
+            User socialUser = userRepository
+                    .findBySocialIdAndLoginType(user.getSocialId(), user.getLoginType())
+                    .stream()
+                    .findFirst().orElse(null);
+            if (socialUser == null) {
+                User socialLoginUser;
+                socialLoginUser = userRepository.save(saveUser);
+                UserAuthority.createUserAuthority(socialLoginUser,authorityService.findById(3L).orElseThrow());
+                return socialLoginUser;
+            } else {
+                return socialUser;
+            }
+        }catch (Exception e){
+            throw new RuntimeException("소셜 로그인 실패");
+        }
+    }
+
+
+
+    /**
+     * 유저 권한 정보 메서드
+     * @param name
+     * @return
+     */
+    public Optional<User> getUserWithAuthorities(String name) {
+        return userRepository.findByEmail(name);
+    }
+
 }

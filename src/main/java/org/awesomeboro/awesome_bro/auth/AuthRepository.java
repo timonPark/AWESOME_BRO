@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface AuthRepository  extends JpaRepository<Authority, Long> {
-     Optional<Authority>  findByAuthorityName(String roles);
+     Optional<Authority> findByName(String roles);
+
 }
