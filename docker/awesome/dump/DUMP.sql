@@ -6,7 +6,7 @@ create table user
     email           varchar(50)            not null comment '이메일',
     nickname        varchar(50)            not null comment '닉네임',
     password        varchar(128)           null comment '비밀번호',
-    phone_number    varchar(20)            not null comment '연락처',
+    phone_number    varchar(20)            null comment '연락처',
     login_type      varchar(30)            not null comment '로그인 타입',
     social_id       varchar(200)           null comment '소셜아이디',
     profile_picture varchar(200)           null comment '프로필 사진 URL',

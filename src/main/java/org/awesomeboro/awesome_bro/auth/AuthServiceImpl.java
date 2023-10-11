@@ -3,7 +3,7 @@ package org.awesomeboro.awesome_bro.auth;
 import lombok.RequiredArgsConstructor;
 import org.awesomeboro.awesome_bro.constant.ErrorCode;
 import org.awesomeboro.awesome_bro.dto.user.TokenDto;
-import org.awesomeboro.awesome_bro.dto.user.UserDto;
+import org.awesomeboro.awesome_bro.dto.user.UserLoginDto;
 import org.awesomeboro.awesome_bro.exception.PasswordException;
 import org.awesomeboro.awesome_bro.security.JwtFilter;
 import org.awesomeboro.awesome_bro.security.TokenProvider;
@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService{
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public TokenDto getToken(UserDto user){
+    public TokenDto getToken(UserLoginDto user){
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -49,14 +49,6 @@ public class AuthServiceImpl implements AuthService{
             }
             throw new RuntimeException(e.getMessage(), e);
         }
-    }
-
-    public Optional<Authority> findByAuthorityName(String authorityName){
-        return authRepository.findByName(authorityName);
-    }
-
-    public Authority save(Authority authority){
-        return authRepository.save(authority);
     }
 
     @Override

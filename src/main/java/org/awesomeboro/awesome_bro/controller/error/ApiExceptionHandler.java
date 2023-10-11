@@ -9,11 +9,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import java.util.Objects;
+import static org.awesomeboro.awesome_bro.constant.ErrorCode.INTERNAL_ERROR;
 
 @RestControllerAdvice(annotations = RestController.class)
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
@@ -48,10 +51,22 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@Override
 	protected ResponseEntity<Object> handleExceptionInternal(final Exception ex, final Object body, final HttpHeaders headers, final HttpStatusCode statusCode,
-			final WebRequest request) {
+															 final WebRequest request) {
+		if (ex instanceof MethodArgumentNotValidException) {
+			String errorMsg = Objects.requireNonNull(((MethodArgumentNotValidException) ex).getBindingResult().getFieldError()).getDefaultMessage();
+			return super.handleExceptionInternal(
+					ex,
+					ApiErrorResponse.of(false, INTERNAL_ERROR, errorMsg),
+					headers,
+					statusCode,
+					request
+			);
+		}
+
 		ErrorCode errorCode = statusCode.is4xxClientError() ?
 				ErrorCode.SPRING_BAD_REQUST :
 				ErrorCode.SPRING_INTERNAL_ERROR;
+
 		return super.handleExceptionInternal(
 				ex,
 				ApiErrorResponse.of(false, errorCode.getCode(), errorCode.getMessage(ex)),
@@ -86,5 +101,4 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 				request
 		);
 	}
-
 }

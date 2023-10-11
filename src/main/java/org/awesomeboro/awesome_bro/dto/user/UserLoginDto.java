@@ -1,23 +1,21 @@
 package org.awesomeboro.awesome_bro.dto.user;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.awesomeboro.awesome_bro.user.User;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-@Getter
-@Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserLoginDto {
-    @NotNull
+@Data
+public class UserLoginDto extends AbstractUserDto{
+    @NotBlank(message = "이메일은 필수 입니다.")
     @Size(min = 1, max = 50)
     private String email;
+    public void getTokenFromSocial(User user){
+        this.email = user.getEmail();
+        this.password = user.getSocialId();
+    }
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotNull
-    @Size(min = 8, max = 128)
-    private String password;
 }

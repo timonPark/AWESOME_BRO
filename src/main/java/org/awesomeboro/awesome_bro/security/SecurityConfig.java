@@ -12,7 +12,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -43,8 +42,8 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
                 .and().authorizeHttpRequests() // HttpServletRequest를 사용하는 요청들에 대한 접근제한을 설정하겠다.
-                .requestMatchers("**").permitAll()
-//                .requestMatchers("/user/login","/user/social","/user/signUp","/error").permitAll() // 로그인 api
+//                .requestMatchers("**").permitAll()
+                .requestMatchers("/user/login","/user/social","/user/signUp","/error","/user/delete/{id}").permitAll() // 로그인 api
 //                .requestMatchers("/*").hasAnyAuthority("USER") // user로 시작하는 api는 USER 권한이 있어야 접근 가능
                 .anyRequest().authenticated() // 그 외 인증 없이 접근X
 
