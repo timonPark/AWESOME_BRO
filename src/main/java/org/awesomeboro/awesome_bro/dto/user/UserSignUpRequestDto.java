@@ -22,7 +22,7 @@ public class UserSignUpRequestDto extends AbstractUserDto{
     @Size(min = 2, max = 50)
     private String nickname;
 
-    @Size(min = 1, max = 20)
+    @Size(min = 1, max = 20,message = "전화번호는 1자 이상 20자 이하입니다.")
     private String phoneNumber;
 
     @NotBlank(message = "이메일은 필수 입니다.")

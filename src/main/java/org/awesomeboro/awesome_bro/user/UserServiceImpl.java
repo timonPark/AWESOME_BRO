@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService{
     @Transactional
     public String deleteUser(Long id){
         User user = userRepository.findById(id).orElseThrow();
-        user.deactivate();
+        user.softDelete();
         return "ok";
     }
 
@@ -100,24 +100,9 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional
     public TokenDto socialLogin(final UserLoginDto user) {
-        User socialLoginUser;
         User saveUser = new User();
         saveUser.updateFromDto(user);
-        try {
-            User socialUser = userRepository
-                    .findBySocialIdAndLoginType(user.getSocialId(), user.getLoginType())
-                    .stream()
-                    .findFirst().orElse(null);
-            if (socialUser == null) {
-                socialLoginUser = userRepository.save(saveUser);
-                UserAuthority.createUserAuthority(socialLoginUser,authorityService.findById(3L).orElseThrow());
-            } else {
-                socialLoginUser = socialUser;
-            }
-        }catch (Exception e){
-            throw new RuntimeException("소셜 로그인 실패");
-        }
-
+        User socialLoginUser = checkForSocialLogin(user,saveUser);
         UserLoginDto userLoginInfo = new UserLoginDto();
         userLoginInfo.getTokenFromSocial(socialLoginUser);
         return authService.getToken(userLoginInfo);
@@ -134,7 +119,6 @@ public class UserServiceImpl implements UserService{
     public UserInfoDto updateUser(UserInfoDto user, Long id) {
         User userInfo = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(UNDEFINED_ID));
         userInfo.updateUserInfo(user);
-//        userRepository.save(userInfo);
         return UserInfoDto.convertToUserInfoDto(userInfo);
 
 
@@ -144,18 +128,30 @@ public class UserServiceImpl implements UserService{
         Optional<User> existUserCheck = userRepository.findByEmail(user.getEmail());
         // 1. 이메일 이미 존재하면 에러 처리
         if(existUserCheck.isPresent()){
-            /*
-            User existUser = existUserCheck.get();
-            if(existUser.getUseYn().equals("Y")){
-                throw new UserNotFoundException(EMAIL_ALREADY_EXISTS);
-            }
-
-             */
             throw new UserNotFoundException(EMAIL_ALREADY_EXISTS);
         }
         // 2. 비밀번호 자리수 8자리 이하 에러 처리
         if(user.getPassword().length() < 8 || user.getPassword().length() > 15){
             throw new PasswordException(PASSWORD_LENGTH_ERROR);
+        }
+    }
+
+    private User checkForSocialLogin(UserLoginDto user,User saveUser){
+        try {
+            User socialUser = userRepository
+                    .findBySocialIdAndLoginType(user.getSocialId(), user.getLoginType())
+                    .stream()
+                    .findFirst().orElse(null);
+            if (socialUser == null) {
+                User socialLoginUser;
+                socialLoginUser = userRepository.save(saveUser);
+                UserAuthority.createUserAuthority(socialLoginUser,authorityService.findById(3L).orElseThrow());
+                return socialLoginUser;
+            } else {
+                return socialUser;
+            }
+        }catch (Exception e){
+            throw new RuntimeException("소셜 로그인 실패");
         }
     }
 
