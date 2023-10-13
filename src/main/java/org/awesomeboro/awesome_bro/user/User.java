@@ -21,14 +21,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@NamedEntityGraph(name = "User.withUserAuthorities", attributeNodes = {
-        @NamedAttributeNode("userAuthorities")
-})
+@ToString
 public class User extends BaseEntity {
     @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,10 +43,12 @@ public class User extends BaseEntity {
     private String loginType;
     @Column(length = 200,nullable = true)
     private String socialId;
-    @Column(length = 200,nullable = true)
+    @ToString.Exclude
+    @Basic(fetch = FetchType.LAZY)
+    @Column(length = 200)
     private String profilePicture;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserAuthority> userAuthorities = new ArrayList<>();
     public void updateUserInfo(UserInfoDto user) {
         this.name = user.getName();

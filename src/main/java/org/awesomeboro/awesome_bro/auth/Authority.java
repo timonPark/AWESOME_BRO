@@ -16,6 +16,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@ToString(of = {"id","name","label"})
 public class Authority extends BaseEntity {
     @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,7 @@ public class Authority extends BaseEntity {
     @Column(length = 50,nullable = false)
     private String label;
 
-    @OneToMany(mappedBy = "authority")
+    @OneToMany(mappedBy = "authority",fetch = FetchType.LAZY)
     @JsonIgnore
     List<UserAuthority> userAuthorities = new ArrayList<>();
 }
