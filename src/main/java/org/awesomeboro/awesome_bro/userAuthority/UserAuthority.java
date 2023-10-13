@@ -3,23 +3,19 @@ package org.awesomeboro.awesome_bro.userAuthority;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.awesomeboro.awesome_bro.auth.Authority;
 import org.awesomeboro.awesome_bro.common.BaseEntity;
 import org.awesomeboro.awesome_bro.user.User;
 
-import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
+@Setter
 @Entity
-@Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@ToString(exclude = {"user", "authority"})
 public class UserAuthority extends BaseEntity {
     @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +25,7 @@ public class UserAuthority extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = EAGER)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "authority_id")
     private Authority authority;
 
@@ -54,4 +50,6 @@ public class UserAuthority extends BaseEntity {
         userAuthority.setUser(user);
         userAuthority.setAuthority(authority);
     }
+    // 기본 생성자는 protected로 선언하여 외부에서의 직접적인 인스턴스 생성을 방지
+    protected UserAuthority() {}
 }

@@ -18,6 +18,7 @@ public class UserInfoDto {
     private String profilePicture;
 
 
+
     public static UserInfoDto convertToUserInfoDto(User user){
         return UserInfoDto.builder()
                 .id(user.getId())
