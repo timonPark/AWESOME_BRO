@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.awesomeboro.awesome_bro.common.BaseEntity;
+import org.awesomeboro.awesome_bro.dto.article.ArticleCreateOrUpdateRequestDto;
 import org.awesomeboro.awesome_bro.user.User;
 
 
@@ -24,4 +25,16 @@ public class Article extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Article(ArticleCreateOrUpdateRequestDto articleCreateRequestDto) {
+        this.title = articleCreateRequestDto.getTitle();
+        this.content = articleCreateRequestDto.getContent();
+        this.user = articleCreateRequestDto.getUser();
+    }
+
+    public void updateArticleInfo(ArticleCreateOrUpdateRequestDto article) {
+        this.title = article.getTitle();
+        this.content =article.getContent();
+    }
+
 }
