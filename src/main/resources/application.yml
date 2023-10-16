@@ -4,6 +4,18 @@ spring:
     url: ${AWESOME_BRO_URL}
     username: ${AWESOME_BRO_USERNAME}
     password: ${AWESOME_BRO_PASSWORD}
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: rhksdud23000@naver.com
+    password: Aksgml123!
+    properties:
+      mail:
+        smtp:
+          ssl:
+            trust: smtp.naver.com
+            enable: true
+            auth: true
 
   jpa:
     generate-ddl: true

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.awesomeboro.awesome_bro.constant.ErrorCode.*;
 
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService{
     private final AuthService authService;
     private final AuthService authorityService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     /**
      * 회원가입
@@ -155,15 +157,19 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-
-
-    /**
-     * 유저 권한 정보 메서드
-     * @param name
-     * @return
-     */
-    public Optional<User> getUserWithAuthorities(String name) {
-        return userRepository.findByEmail(name);
+    @Transactional
+    public String resetPassword(String email, String name){
+        User user = userRepository.findByEmailAndName(email, name);
+        if(user.getEmail().isEmpty()){
+            throw new UserNotFoundException(UNDEFINED_EMAIL);
+        }
+        String tempPassword = UUID.randomUUID().toString().substring(0, 8);
+        user.setPassword(passwordEncoder.encode(tempPassword));
+        userRepository.save(user);
+        emailService.sendTempPassword(email, tempPassword);
+        return tempPassword;
     }
+
+
 
 }

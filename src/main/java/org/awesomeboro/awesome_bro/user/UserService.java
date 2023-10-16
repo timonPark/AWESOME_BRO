@@ -13,4 +13,5 @@ public interface UserService {
     UserInfoDto updateUser(UserInfoDto user, Long id);
     String deleteUser(Long id);
     List<UserInfoDto> findUserList();
+    String resetPassword(String email, String name);
 }

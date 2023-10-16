@@ -89,4 +89,15 @@ public class UserController {
         return createSuccess( userService.deleteUser(id));
     }
 
+    /**
+     * 임시 비밀번호 발급
+     * @param email
+     * @param name
+     * @return
+     */
+    @PostMapping("/findPassword")
+    public ApiResponse<String> findPassword(@RequestParam String email,@RequestParam String name) {
+        String tempPassword = userService.resetPassword(email,name);
+        return createSuccess(tempPassword);
+    }
 }
