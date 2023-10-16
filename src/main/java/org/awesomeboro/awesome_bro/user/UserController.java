@@ -64,7 +64,7 @@ public class UserController {
      */
 
     @PatchMapping(value = "/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<UserInfoDto> updateUser(@RequestBody UserInfoDto user, @PathVariable Long id) {
+    public ApiResponse<UserInfoDto> updateUser(@RequestBody UserUpdateRequestDto user, @PathVariable Long id) {
         return createSuccess(userService.updateUser(user,id));
 
     }
@@ -89,4 +89,15 @@ public class UserController {
         return createSuccess( userService.deleteUser(id));
     }
 
+    /**
+     * 임시 비밀번호 발급
+     * @param email
+     * @param name
+     * @return
+     */
+    @PostMapping("/findPassword")
+    public ApiResponse<String> findPassword(@RequestParam String email,@RequestParam String name) {
+        String tempPassword = userService.resetPassword(email,name);
+        return createSuccess(tempPassword);
+    }
 }

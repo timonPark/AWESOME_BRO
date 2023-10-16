@@ -1,6 +1,7 @@
 package org.awesomeboro.awesome_bro.dto.user;
 import lombok.*;
 import org.awesomeboro.awesome_bro.user.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @Data
@@ -16,7 +17,6 @@ public class UserInfoDto {
     private String loginType;
     private String socialId;
     private String profilePicture;
-
 
 
     public static UserInfoDto convertToUserInfoDto(User user){

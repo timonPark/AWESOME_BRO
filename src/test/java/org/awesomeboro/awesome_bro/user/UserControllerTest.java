@@ -3,6 +3,7 @@ package org.awesomeboro.awesome_bro.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.awesomeboro.awesome_bro.dto.user.UserSignUpRequestDto;
 import org.awesomeboro.awesome_bro.dto.user.UserInfoDto;
+import org.awesomeboro.awesome_bro.dto.user.UserUpdateRequestDto;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ class UserControllerTest {
                 .loginType("normal")
                 .socialId("asfasf1qadsfdfasdf")
                 .build();
-        when(userService.updateUser(any(UserInfoDto.class), anyLong())).thenAnswer(ele-> {
+        when(userService.updateUser(any(UserUpdateRequestDto.class), anyLong())).thenAnswer(ele-> {
 
             return user;
         });

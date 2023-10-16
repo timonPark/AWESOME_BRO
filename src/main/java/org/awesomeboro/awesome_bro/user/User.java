@@ -13,6 +13,7 @@ import lombok.*;
 import org.awesomeboro.awesome_bro.common.BaseEntity;
 import org.awesomeboro.awesome_bro.dto.user.AbstractUserDto;
 import org.awesomeboro.awesome_bro.dto.user.UserInfoDto;
+import org.awesomeboro.awesome_bro.dto.user.UserUpdateRequestDto;
 import org.awesomeboro.awesome_bro.userAuthority.UserAuthority;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -50,7 +51,7 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserAuthority> userAuthorities = new ArrayList<>();
-    public void updateUserInfo(UserInfoDto user) {
+    public void updateUserInfo(UserUpdateRequestDto user) {
         this.name = user.getName();
         this.nickname = user.getNickname();
         this.phoneNumber = user.getPhoneNumber();

@@ -10,7 +10,8 @@ public interface UserService {
     UserInfoDto findUser(Long id);
     TokenDto login(UserLoginDto user);
     TokenDto socialLogin(final UserLoginDto user);
-    UserInfoDto updateUser(UserInfoDto user, Long id);
+    UserInfoDto updateUser(UserUpdateRequestDto user, Long id);
     String deleteUser(Long id);
     List<UserInfoDto> findUserList();
+    String resetPassword(String email, String name);
 }
