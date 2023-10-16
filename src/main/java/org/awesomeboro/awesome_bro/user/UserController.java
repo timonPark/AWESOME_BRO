@@ -64,7 +64,7 @@ public class UserController {
      */
 
     @PatchMapping(value = "/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ApiResponse<UserInfoDto> updateUser(@RequestBody UserInfoDto user, @PathVariable Long id) {
+    public ApiResponse<UserInfoDto> updateUser(@RequestBody UserUpdateRequestDto user, @PathVariable Long id) {
         return createSuccess(userService.updateUser(user,id));
 
     }

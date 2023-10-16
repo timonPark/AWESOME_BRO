@@ -118,8 +118,14 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     @Transactional
-    public UserInfoDto updateUser(UserInfoDto user, Long id) {
+    public UserInfoDto updateUser(UserUpdateRequestDto user, Long id) {
         User userInfo = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(UNDEFINED_ID));
+        if(user.getPassword() !=null){
+            if(user.getPassword().length() < 8 || user.getPassword().length() > 15){
+                throw new PasswordException(PASSWORD_LENGTH_ERROR);
+            }
+            userInfo.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         userInfo.updateUserInfo(user);
         return UserInfoDto.convertToUserInfoDto(userInfo);
 
